@@ -14,14 +14,14 @@
         <span>校园失物招领</span>
     </a>
     <nav class="nav-links">
-        <a href="{{ url_for('index') }}">首页</a>
-        <a href="{{ url_for('publish') }}">发布信息</a>
-        <a href="{{ url_for('match') }}">智能匹配</a>
-        <a href="{{ url_for('my_items') }}">我的发布</a>
-        <a href="{{ url_for('my_claims') }}">我的申请</a>
-        <a href="{{ url_for('my_priority') }}">我的加急申请</a>
+        <a class="{% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">首页</a>
+        <a class="{% if request.endpoint == 'publish' %}active{% endif %}" href="{{ url_for('publish') }}">发布信息</a>
+        <a class="{% if request.endpoint == 'match' %}active{% endif %}" href="{{ url_for('match') }}">智能匹配</a>
+        <a class="{% if request.endpoint == 'my_items' %}active{% endif %}" href="{{ url_for('my_items') }}">我的发布</a>
+        <a class="{% if request.endpoint == 'my_claims' %}active{% endif %}" href="{{ url_for('my_claims') }}">我的申请</a>
+        <a class="{% if request.endpoint == 'my_priority' %}active{% endif %}" href="{{ url_for('my_priority') }}">我的加急申请</a>
         {% if current_user.is_admin() %}
-        <a href="{{ url_for('admin_dashboard') }}">管理员后台</a>
+        <a class="{% if request.endpoint and request.endpoint.startswith('admin_') %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">管理员后台</a>
         {% endif %}
     </nav>
     <div class="user-box">

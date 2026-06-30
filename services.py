@@ -419,6 +419,14 @@ class PriorityService:
 
 
 class StatsService:
+    def today_new_items(self):
+        # 口径：统计 items 表中本地日期为今天的全部发布信息，包含已归档数据。
+        try:
+            row = db.query_one("SELECT COUNT(*) AS count FROM items WHERE date(created_at) = date('now', 'localtime')")
+            return row["count"] if row else 0
+        except Exception:
+            return 0
+
     def dashboard_stats(self):
         def one(sql, params=()):
             row = db.query_one(sql, params)
@@ -428,6 +436,7 @@ class StatsService:
             "total_items": one("SELECT COUNT(*) FROM items"),
             "lost_count": one("SELECT COUNT(*) FROM items WHERE item_type = '失物'"),
             "found_count": one("SELECT COUNT(*) FROM items WHERE item_type = '招领'"),
+            "today_new_items": self.today_new_items(),
             "pending_claims": one("SELECT COUNT(*) FROM claims WHERE status = '待审核'"),
             "returned_count": one("SELECT COUNT(*) FROM items WHERE status = '已归还'"),
             "archived_count": one("SELECT COUNT(*) FROM items WHERE archived = 1"),

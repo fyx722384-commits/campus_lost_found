@@ -126,7 +126,13 @@ def index():
     status = request.args.get("status", "")
     items = item_service.search_items(keyword, item_type, category, status, include_archived=False)
     stats = stats_service.dashboard_stats()
-    return render_template("index.html", items=items, stats=stats, filters=request.args)
+    return render_template(
+        "index.html",
+        items=items,
+        stats=stats,
+        today_new_items=stats.get("today_new_items", 0),
+        filters=request.args,
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])

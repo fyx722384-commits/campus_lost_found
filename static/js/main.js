@@ -7,8 +7,7 @@
         toast.textContent = message;
         root.appendChild(toast);
         setTimeout(function () {
-            toast.style.opacity = "0";
-            toast.style.transform = "translateX(20px)";
+            toast.classList.add("is-leaving");
             setTimeout(function () { toast.remove(); }, 220);
         }, 2800);
     }
@@ -20,6 +19,7 @@
     document.querySelectorAll("[data-filter-form]").forEach(function (form) {
         var keyword = form.querySelector('input[name="keyword"]');
         var cards = document.querySelectorAll("[data-search]");
+        var resultList = document.querySelector("[data-results-list]");
         if (!keyword || !cards.length) return;
         keyword.addEventListener("input", function () {
             var value = keyword.value.trim().toLowerCase();
@@ -33,6 +33,11 @@
                     card.classList.add("fade-list");
                 }
             });
+            if (resultList) {
+                resultList.classList.remove("fade-list");
+                void resultList.offsetWidth;
+                resultList.classList.add("fade-list");
+            }
         });
     });
 
@@ -43,6 +48,13 @@
     document.querySelectorAll(".progress span").forEach(function (bar) {
         var target = bar.style.getPropertyValue("--target");
         bar.style.setProperty("--target", target || "0%");
+        bar.style.animation = "none";
+        void bar.offsetWidth;
+        bar.style.animation = "";
+    });
+
+    document.querySelectorAll(".match-card").forEach(function (card, index) {
+        card.style.animationDelay = (index * 70) + "ms";
     });
 
     document.querySelectorAll("[data-priority-level]").forEach(function (select) {
