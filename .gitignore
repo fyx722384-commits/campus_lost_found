@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+env/
+.idea/
+.vscode/
+.DS_Store
+flask_err.txt
+flask_out.txt
+campus_lost_found.db

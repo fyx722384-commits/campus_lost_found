@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}登录 - 校园失物招领{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-title">
+            <span class="brand-mark large">拾</span>
+            <h1>校园失物招领</h1>
+            <p>集中发布、快速检索、规范认领，让校园物品回到主人手里。</p>
+        </div>
+        <form method="post" class="form-grid">
+            <label>
+                用户名
+                <input name="username" placeholder="请输入用户名" required>
+            </label>
+            <label>
+                密码
+                <input type="password" name="password" placeholder="请输入密码" required>
+            </label>
+            <button class="btn btn-primary" type="submit">登录系统</button>
+            <a class="btn btn-muted" href="{{ url_for('register') }}">注册普通用户</a>
+        </form>
+        <div class="demo-account">
+            <span>演示账号：admin / admin123</span>
+            <span>student / student123</span>
+        </div>
+    </div>
+</section>
+{% endblock %}

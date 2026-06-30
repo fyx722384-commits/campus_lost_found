@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}管理员首页 - 校园失物招领{% endblock %}
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <a class="active" href="{{ url_for('admin_dashboard') }}">统计看板</a>
+        <a href="{{ url_for('admin_items') }}">物品管理</a>
+        <a href="{{ url_for('admin_claims') }}">认领审核</a>
+        <a href="{{ url_for('admin_priority') }}">加急工单管理</a>
+        <a href="{{ url_for('admin_users') }}">用户管理</a>
+    </aside>
+    <section class="admin-main">
+        <div class="section-title">
+            <p class="eyebrow">Admin Dashboard</p>
+            <h1>管理员统计看板</h1>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card"><span>总发布数量</span><strong>{{ stats.total_items }}</strong></div>
+            <div class="stat-card"><span>失物数量</span><strong>{{ stats.lost_count }}</strong></div>
+            <div class="stat-card"><span>招领数量</span><strong>{{ stats.found_count }}</strong></div>
+            <div class="stat-card"><span>待审核申请</span><strong>{{ stats.pending_claims }}</strong></div>
+            <div class="stat-card"><span>已归还</span><strong>{{ stats.returned_count }}</strong></div>
+            <div class="stat-card"><span>已归档</span><strong>{{ stats.archived_count }}</strong></div>
+            <div class="stat-card priority-stat"><span>今日加急</span><strong>{{ stats.today_priority }}</strong></div>
+            <div class="stat-card priority-stat"><span>待审加急</span><strong>{{ stats.pending_priority }}</strong></div>
+            <div class="stat-card priority-stat"><span>进行中加急</span><strong>{{ stats.active_priority }}</strong></div>
+            <div class="stat-card priority-stat"><span>已结束加急</span><strong>{{ stats.finished_priority }}</strong></div>
+        </div>
+        <div class="dashboard-grid">
+            <article class="content-card">
+                <h2>各分类数量</h2>
+                <div class="bar-chart">
+                    {% for row in category_stats %}
+                    <div class="bar-row">
+                        <span>{{ row.category }}</span>
+                        <div><i style="width: {{ row.count * 100 / (category_stats[0].count if category_stats else 1) }}%"></i></div>
+                        <strong>{{ row.count }}</strong>
+                    </div>
+                    {% endfor %}
+                </div>
+            </article>
+            <article class="content-card">
+                <h2>最近 7 天发布趋势</h2>
+                <div class="trend-chart">
+                    {% for row in trend_stats %}
+                    <div class="trend-col">
+                        <i style="height: {{ 18 + row.count * 16 }}px"></i>
+                        <span>{{ row.day }}</span>
+                        <strong>{{ row.count }}</strong>
+                    </div>
+                    {% endfor %}
+                </div>
+            </article>
+        </div>
+    </section>
+</div>
+{% endblock %}

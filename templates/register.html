@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}注册 - 校园失物招领{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+    <div class="auth-card">
+        <div class="auth-title">
+            <span class="brand-mark large">新</span>
+            <h1>注册普通用户</h1>
+            <p>注册后可以发布失物、招领信息，并跟踪自己的认领申请。</p>
+        </div>
+        <form method="post" class="form-grid">
+            <label>用户名<input name="username" placeholder="例如：student2026" required></label>
+            <label>密码<input type="password" name="password" placeholder="请设置登录密码" required></label>
+            <label>手机号<input name="phone" placeholder="用于认领联系，可选"></label>
+            <button class="btn btn-primary" type="submit">确认注册</button>
+            <a class="btn btn-muted" href="{{ url_for('login') }}">返回登录</a>
+        </form>
+    </div>
+</section>
+{% endblock %}

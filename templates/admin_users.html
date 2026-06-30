@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}用户管理 - 校园失物招领{% endblock %}
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <a href="{{ url_for('admin_dashboard') }}">统计看板</a>
+        <a href="{{ url_for('admin_items') }}">物品管理</a>
+        <a href="{{ url_for('admin_claims') }}">认领审核</a>
+        <a href="{{ url_for('admin_priority') }}">加急工单管理</a>
+        <a class="active" href="{{ url_for('admin_users') }}">用户管理</a>
+    </aside>
+    <section class="admin-main">
+        <div class="section-title"><p class="eyebrow">Users</p><h1>用户管理</h1></div>
+        <div class="table-wrap content-card">
+            <table>
+                <thead><tr><th>用户名</th><th>角色</th><th>手机号</th><th>发布数量</th><th>创建时间</th></tr></thead>
+                <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.username }}</td>
+                    <td>{{ '管理员' if user.role == 'admin' else '普通用户' }}</td>
+                    <td>{{ user.phone or '未填写' }}</td>
+                    <td>{{ user.item_count }}</td>
+                    <td>{{ user.created_at|short_time }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

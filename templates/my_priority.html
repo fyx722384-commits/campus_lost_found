@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}我的加急申请 - 校园失物招领{% endblock %}
+{% block content %}
+<section class="content-card wide">
+    <div class="section-title">
+        <p class="eyebrow">My Priority</p>
+        <h1>我的加急申请</h1>
+        <p>这里展示你提交过的模拟加急服务申请，包括审核状态、模拟费用和置顶截止时间。</p>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr><th>物品</th><th>等级</th><th>原因</th><th>模拟费用</th><th>支付状态</th><th>审核状态</th><th>申请时间</th><th>到期时间</th></tr>
+            </thead>
+            <tbody>
+            {% for request in requests %}
+            <tr>
+                <td><a href="{{ url_for('item_detail', item_id=request.item_id) }}">{{ request.item_title }}</a></td>
+                <td><span class="priority-badge">{{ request.level }}</span></td>
+                <td>{{ request.reason }}</td>
+                <td>{{ '%.0f'|format(request.fee_amount) }} 元</td>
+                <td><span class="status-badge {{ request.pay_status|status_class }}">{{ request.pay_status }}</span></td>
+                <td><span class="status-badge {{ request.status|status_class }}">{{ request.status }}</span></td>
+                <td>{{ request.created_at|short_time }}</td>
+                <td>{{ request.expire_at|short_time if request.expire_at else '审核后生成' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8" class="empty-cell">暂无加急申请。</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

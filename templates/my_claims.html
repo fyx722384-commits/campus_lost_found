@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}我的认领申请 - 校园失物招领{% endblock %}
+{% block content %}
+<section class="content-card wide">
+    <div class="section-title">
+        <p class="eyebrow">My Claims</p>
+        <h1>我的认领申请</h1>
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+            <tr><th>物品</th><th>申请说明</th><th>联系方式</th><th>状态</th><th>申请时间</th><th>审核时间</th></tr>
+            </thead>
+            <tbody>
+            {% for claim in claims %}
+            <tr>
+                <td><a href="{{ url_for('item_detail', item_id=claim.item_id) }}">{{ claim.item_title }}</a></td>
+                <td>{{ claim.reason }}</td>
+                <td>{{ claim.contact }}</td>
+                <td><span class="status-badge {{ claim.status|status_class }}">{{ claim.status }}</span></td>
+                <td>{{ claim.created_at|short_time }}</td>
+                <td>{{ claim.reviewed_at|short_time if claim.reviewed_at else '待处理' }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6" class="empty-cell">暂无认领申请。</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

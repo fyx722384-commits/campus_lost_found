@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}申请加急寻物 - 校园失物招领{% endblock %}
+{% block content %}
+<section class="content-card wide priority-apply-card">
+    <div class="section-title">
+        <p class="eyebrow">Priority Service</p>
+        <h1>申请加急寻物服务</h1>
+        <p>该功能为课程设计原型中的模拟加急服务，不接入真实支付，也不保证找回物品，仅提高曝光、匹配和处理优先级。</p>
+    </div>
+    <div class="match-summary">
+        <span>申请物品：</span>
+        <strong>{{ item.title }}</strong>
+        <span>{{ item.category }} · {{ item.location }} · {{ item.event_time|short_time }}</span>
+    </div>
+    <div class="priority-level-grid">
+        <div><strong>普通加急</strong><span>模拟费用 3 元，置顶 24 小时</span></div>
+        <div><strong>重点加急</strong><span>模拟费用 6 元，置顶 72 小时</span></div>
+        <div><strong>公益加急</strong><span>0 元，仅限校园卡、证件、钥匙等重要物品，需管理员审核</span></div>
+    </div>
+    <form method="post" class="form-grid two-col">
+        <label>加急等级
+            <select name="level" required data-priority-level>
+                {% for level, config in priority_levels.items() %}
+                <option value="{{ level }}">{{ level }}（模拟费用 {{ config.fee }} 元）</option>
+                {% endfor %}
+            </select>
+            <span class="priority-note" data-priority-tip>普通加急：模拟费用 3 元，置顶 24 小时</span>
+        </label>
+        <label>联系方式
+            <input name="contact" value="{{ current_user.phone }}" placeholder="请填写可联系到你的方式" required>
+        </label>
+        <label class="full">加急原因
+            <textarea name="reason" rows="5" placeholder="请说明物品重要性、丢失影响或需要加急处理的原因" required></textarea>
+        </label>
+        <div class="form-actions full">
+            <button class="btn btn-priority" type="submit">提交加急申请</button>
+            <a class="btn btn-muted" href="{{ url_for('item_detail', item_id=item.id) }}">返回详情</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

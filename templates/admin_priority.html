@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}加急工单管理 - 校园失物招领{% endblock %}
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <a href="{{ url_for('admin_dashboard') }}">统计看板</a>
+        <a href="{{ url_for('admin_items') }}">物品管理</a>
+        <a href="{{ url_for('admin_claims') }}">认领审核</a>
+        <a class="active" href="{{ url_for('admin_priority') }}">加急工单管理</a>
+        <a href="{{ url_for('admin_users') }}">用户管理</a>
+    </aside>
+    <section class="admin-main">
+        <div class="section-title">
+            <p class="eyebrow">Priority Tickets</p>
+            <h1>加急工单管理</h1>
+        </div>
+        <form class="filter-bar admin-filter" method="get">
+            <select name="status">
+                <option value="">全部状态</option>
+                {% for status in priority_statuses %}
+                <option value="{{ status }}" {% if current_status == status %}selected{% endif %}>{{ status }}</option>
+                {% endfor %}
+            </select>
+            <button class="btn btn-primary" type="submit">筛选</button>
+        </form>
+        <div class="claim-grid">
+            {% for request in requests %}
+            <article class="content-card claim-card priority-ticket">
+                <div class="item-card-top">
+                    <div>
+                        <h2>{{ request.item_title }}</h2>
+                        <p class="muted">{{ request.item_category }} · 申请人：{{ request.applicant_name }}</p>
+                    </div>
+                    <span class="status-badge {{ request.status|status_class }}">{{ request.status }}</span>
+                </div>
+                <div class="ticket-meta">
+                    <span class="priority-badge">{{ request.level }}</span>
+                    <span>模拟费用：{{ '%.0f'|format(request.fee_amount) }} 元</span>
+                    <span class="status-badge {{ request.pay_status|status_class }}">{{ request.pay_status }}</span>
+                    <span>申请时间：{{ request.created_at|short_time }}</span>
+                    <span>到期：{{ request.expire_at|short_time if request.expire_at else '审核后生成' }}</span>
+                </div>
+                <p><strong>加急原因：</strong>{{ request.reason }}</p>
+                <form method="post" class="review-actions">
+                    <input type="hidden" name="request_id" value="{{ request.id }}">
+                    <button name="action" value="approve" class="btn btn-sm btn-priority">通过</button>
+                    <button name="action" value="reject" class="btn btn-sm btn-danger">驳回</button>
+                    <button name="action" value="finish" class="btn btn-sm btn-muted">结束</button>
+                </form>
+            </article>
+            {% else %}
+            <div class="empty-state">暂无符合条件的加急工单。</div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

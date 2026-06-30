@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}物品详情 - 校园失物招领{% endblock %}
+{% block content %}
+<section class="detail-layout">
+    <article class="content-card">
+        <div class="item-card-top">
+            <div class="tag-line">
+                <span class="type-pill {{ 'lost' if item.is_lost() else 'found' }}">{{ item.item_type }}</span>
+                {% if item.has_active_priority() %}
+                <span class="priority-badge">加急寻物</span>
+                {% endif %}
+            </div>
+            <span class="status-badge {{ item.status|status_class }}">{{ item.status }}</span>
+        </div>
+        <h1>{{ item.title }}</h1>
+        {% if item.image_path %}
+        <img class="detail-image" src="{{ url_for('static', filename=item.image_path) }}" alt="{{ item.title }}">
+        {% else %}
+        <div class="image-placeholder">暂无图片</div>
+        {% endif %}
+        <dl class="detail-list">
+            <div><dt>分类</dt><dd>{{ item.category }}</dd></div>
+            <div><dt>地点</dt><dd>{{ item.location }}</dd></div>
+            <div><dt>时间</dt><dd>{{ item.event_time|short_time }}</dd></div>
+            <div><dt>发布人</dt><dd>{{ item.owner_name }}</dd></div>
+            <div><dt>联系方式</dt><dd>{{ item.contact }}</dd></div>
+            <div><dt>发布时间</dt><dd>{{ item.created_at|short_time }}</dd></div>
+        </dl>
+        <p class="detail-desc">{{ item.description }}</p>
+    </article>
+
+    <aside class="content-card side-card pop-card">
+        {% if item.user_id == current_user.id %}
+        <h2>这是你发布的信息</h2>
+        <p class="muted">当前状态为 {{ item.status }}。你可以在“我的发布”中查看所有记录。</p>
+        <div class="form-actions">
+            <a class="btn btn-primary" href="{{ url_for('my_items') }}">查看我的发布</a>
+            {% if item.is_lost() %}
+            <a class="btn btn-priority" href="{{ url_for('priority_apply', item_id=item.id) }}">申请加急寻物</a>
+            {% endif %}
+        </div>
+        {% if priority_requests %}
+        <div class="mini-list">
+            <h3>该物品加急记录</h3>
+            {% for request in priority_requests[:3] %}
+            <p>
+                <span class="status-badge {{ request.status|status_class }}">{{ request.status }}</span>
+                {{ request.level }} · {{ request.created_at|short_time }}
+            </p>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% elif item.can_claim() or item.status == '认领中' %}
+        <h2>提交认领申请</h2>
+        <p class="muted">请写清能证明归属的特征，管理员会根据申请说明进行审核。</p>
+        <form method="post" class="form-grid">
+            <label>申请说明
+                <textarea name="reason" rows="5" placeholder="例如：物品特殊标记、遗失时间、可验证内容" required></textarea>
+            </label>
+            <label>联系方式
+                <input name="contact" value="{{ current_user.phone }}" placeholder="请填写可联系到你的方式" required>
+            </label>
+            <button class="btn btn-primary" type="submit">提交认领申请</button>
+        </form>
+        {% else %}
+        <h2>暂不可认领</h2>
+        <p class="muted">该信息当前为 {{ item.status }} 状态，不再接受新的认领申请。</p>
+        {% endif %}
+    </aside>
+</section>
+{% endblock %}

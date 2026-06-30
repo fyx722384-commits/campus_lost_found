@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}校园失物招领信息管理系统{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{% if current_user %}
+<header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}">
+        <span class="brand-mark">拾</span>
+        <span>校园失物招领</span>
+    </a>
+    <nav class="nav-links">
+        <a href="{{ url_for('index') }}">首页</a>
+        <a href="{{ url_for('publish') }}">发布信息</a>
+        <a href="{{ url_for('match') }}">智能匹配</a>
+        <a href="{{ url_for('my_items') }}">我的发布</a>
+        <a href="{{ url_for('my_claims') }}">我的申请</a>
+        <a href="{{ url_for('my_priority') }}">我的加急申请</a>
+        {% if current_user.is_admin() %}
+        <a href="{{ url_for('admin_dashboard') }}">管理员后台</a>
+        {% endif %}
+    </nav>
+    <div class="user-box">
+        <span>{{ current_user.username }}</span>
+        <a class="btn btn-ghost btn-sm" href="{{ url_for('logout') }}">退出</a>
+    </div>
+</header>
+{% endif %}
+
+<div class="flash-store" aria-hidden="true">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+    <div class="flash-message" data-category="{{ category }}">{{ message }}</div>
+    {% endfor %}
+</div>
+
+<main class="{% if current_user %}page-shell{% endif %}">
+    {% block content %}{% endblock %}
+</main>
+
+<div id="toast-root" class="toast-root"></div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

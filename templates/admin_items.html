@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}物品管理 - 校园失物招领{% endblock %}
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <a href="{{ url_for('admin_dashboard') }}">统计看板</a>
+        <a class="active" href="{{ url_for('admin_items') }}">物品管理</a>
+        <a href="{{ url_for('admin_claims') }}">认领审核</a>
+        <a href="{{ url_for('admin_priority') }}">加急工单管理</a>
+        <a href="{{ url_for('admin_users') }}">用户管理</a>
+    </aside>
+    <section class="admin-main">
+        <div class="section-title"><p class="eyebrow">Items</p><h1>物品信息管理</h1></div>
+        <form class="filter-bar" method="get">
+            <input name="keyword" value="{{ filters.get('keyword', '') }}" placeholder="搜索标题、描述、地点">
+            <select name="item_type"><option value="">全部类型</option><option value="失物">失物</option><option value="招领">招领</option></select>
+            <select name="category"><option value="">全部分类</option>{% for category in categories %}<option value="{{ category }}">{{ category }}</option>{% endfor %}</select>
+            <button class="btn btn-primary" type="submit">筛选</button>
+        </form>
+        <div class="table-wrap content-card">
+            <table>
+                <thead><tr><th>标题</th><th>类型</th><th>分类</th><th>地点</th><th>状态</th><th>发布人</th><th>操作</th></tr></thead>
+                <tbody>
+                {% for item in items %}
+                <tr>
+                    <td><a href="{{ url_for('item_detail', item_id=item.id) }}">{{ item.title }}</a></td>
+                    <td>{{ item.item_type }}</td><td>{{ item.category }}</td><td>{{ item.location }}</td>
+                    <td><span class="status-badge {{ item.status|status_class }}">{{ item.status }}</span></td>
+                    <td>{{ item.owner_name }}</td>
+                    <td>
+                        <form method="post" class="inline-form">
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <select name="status">
+                                {% for status in item_statuses %}<option value="{{ status }}" {% if status == item.status %}selected{% endif %}>{{ status }}</option>{% endfor %}
+                            </select>
+                            <button class="btn btn-sm btn-primary">更新</button>
+                        </form>
+                        <form method="post" class="inline-form">
+                            <input type="hidden" name="item_id" value="{{ item.id }}">
+                            <input type="hidden" name="action" value="archive">
+                            <button class="btn btn-sm btn-muted">归档</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+{% endblock %}

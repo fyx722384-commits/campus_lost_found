@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}认领审核 - 校园失物招领{% endblock %}
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <a href="{{ url_for('admin_dashboard') }}">统计看板</a>
+        <a href="{{ url_for('admin_items') }}">物品管理</a>
+        <a class="active" href="{{ url_for('admin_claims') }}">认领审核</a>
+        <a href="{{ url_for('admin_priority') }}">加急工单管理</a>
+        <a href="{{ url_for('admin_users') }}">用户管理</a>
+    </aside>
+    <section class="admin-main">
+        <div class="section-title"><p class="eyebrow">Claims</p><h1>认领申请审核</h1></div>
+        <div class="claim-grid">
+            {% for claim in claims %}
+            <article class="content-card claim-card">
+                <div class="item-card-top">
+                    <h2>{{ claim.item_title }}</h2>
+                    <span class="status-badge {{ claim.status|status_class }}">{{ claim.status }}</span>
+                </div>
+                <p><strong>申请人：</strong>{{ claim.applicant_name }}</p>
+                <p><strong>申请说明：</strong>{{ claim.reason }}</p>
+                <p><strong>联系方式：</strong>{{ claim.contact }}</p>
+                <p class="muted">申请时间：{{ claim.created_at|short_time }}</p>
+                <form method="post" class="review-actions">
+                    <input type="hidden" name="claim_id" value="{{ claim.id }}">
+                    <button name="status" value="已通过" class="btn btn-sm btn-primary">通过</button>
+                    <button name="status" value="已驳回" class="btn btn-sm btn-danger">驳回</button>
+                    <button name="status" value="已完成" class="btn btn-sm btn-success">标记完成</button>
+                </form>
+            </article>
+            {% else %}
+            <div class="empty-state">暂无认领申请。</div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}
