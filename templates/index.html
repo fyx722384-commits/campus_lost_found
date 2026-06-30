@@ -32,14 +32,27 @@
 </section>
 
 <section class="stats-grid compact">
-    <div class="stat-card"><span>总发布</span><strong>{{ stats.total_items }}</strong></div>
-    <div class="stat-card"><span>失物</span><strong>{{ stats.lost_count }}</strong></div>
-    <div class="stat-card"><span>招领</span><strong>{{ stats.found_count }}</strong></div>
-    <div class="stat-card"><span>待审核</span><strong>{{ stats.pending_claims }}</strong></div>
-    <div class="stat-card today-stat"><span>今日新增</span><strong>{{ today_new_items }}</strong><small>今日发布的失物/招领信息</small></div>
+    <a class="stat-card stat-link {% if filters.get('stat') == 'all' or not active_filters %}active{% endif %}" href="{{ url_for('index', stat='all') }}">
+        <span>总发布</span><strong>{{ stats.total_items }}</strong><small>查看全部</small>
+    </a>
+    <a class="stat-card stat-link {% if filters.get('item_type') == '失物' %}active{% endif %}" href="{{ url_for('index', item_type='失物') }}">
+        <span>失物</span><strong>{{ stats.lost_count }}</strong><small>筛选 →</small>
+    </a>
+    <a class="stat-card stat-link {% if filters.get('item_type') == '招领' %}active{% endif %}" href="{{ url_for('index', item_type='招领') }}">
+        <span>招领</span><strong>{{ stats.found_count }}</strong><small>筛选 →</small>
+    </a>
+    <a class="stat-card stat-link" href="{{ url_for('admin_claims', status='待审核') if current_user.is_admin() else url_for('my_claims', status='待审核') }}">
+        <span>待审核</span><strong>{{ stats.pending_claims }}</strong><small>查看 →</small>
+    </a>
+    <a class="stat-card stat-link today-stat {% if filters.get('date_mode') == 'today' %}active{% endif %}" href="{{ url_for('index', date_mode='today') }}">
+        <span>今日新增</span><strong>{{ today_new_items }}</strong><small>今日发布的失物/招领信息</small>
+    </a>
 </section>
 
-<form class="filter-bar" method="get" data-filter-form>
+<form class="filter-bar home-filter" method="get" data-filter-form>
+    {% if filters.get('date_mode') %}
+    <input type="hidden" name="date_mode" value="{{ filters.get('date_mode') }}" data-date-mode-field>
+    {% endif %}
     <input name="keyword" value="{{ filters.get('keyword', '') }}" placeholder="搜索物品名称、地点或描述">
     <select name="item_type">
         <option value="">全部类型</option>
@@ -58,8 +71,19 @@
         <option value="{{ status }}" {% if filters.get('status') == status %}selected{% endif %}>{{ status }}</option>
         {% endfor %}
     </select>
+    <input type="date" name="start_date" value="{{ filters.get('start_date', '') }}" aria-label="开始日期" data-date-input>
+    <input type="date" name="end_date" value="{{ filters.get('end_date', '') }}" aria-label="结束日期" data-date-input>
     <button class="btn btn-primary" type="submit">搜索</button>
 </form>
+
+<div class="filter-summary fade-list">
+    {% if active_filters %}
+    <span>当前筛选：{{ active_filters|join(' / ') }}</span>
+    <a class="btn btn-ghost btn-sm" href="{{ url_for('index') }}">清空筛选</a>
+    {% else %}
+    <span>当前筛选：全部未归档信息</span>
+    {% endif %}
+</div>
 
 <section class="item-grid fade-list" data-results-list>
     {% for item in items %}

@@ -53,7 +53,17 @@ class ItemService:
         db.log(user_id, "发布物品信息", "item", item_id)
         return item_id
 
-    def search_items(self, keyword="", item_type="", category="", status="", include_archived=False):
+    def search_items(
+        self,
+        keyword="",
+        item_type="",
+        category="",
+        status="",
+        include_archived=False,
+        start_date="",
+        end_date="",
+        date_mode="",
+    ):
         sql = """
             SELECT items.*, users.username AS owner_name,
                    active_priority.priority_level,
@@ -80,6 +90,15 @@ class ItemService:
         if status:
             sql += " AND items.status = ?"
             params.append(status)
+        if date_mode == "today":
+            sql += " AND date(items.created_at) = date('now', 'localtime')"
+        else:
+            if self._valid_date(start_date):
+                sql += " AND date(items.event_time) >= date(?)"
+                params.append(start_date)
+            if self._valid_date(end_date):
+                sql += " AND date(items.event_time) <= date(?)"
+                params.append(end_date)
         sql += """
             ORDER BY
                 CASE WHEN active_priority.priority_level IS NOT NULL THEN 1 ELSE 0 END DESC,
@@ -87,6 +106,9 @@ class ItemService:
                 items.created_at DESC
         """
         return [Item.from_row(row) for row in db.query(sql, params)]
+
+    def _valid_date(self, value):
+        return bool(value and re.fullmatch(r"\d{4}-\d{2}-\d{2}", value))
 
     def get_item(self, item_id):
         row = db.query_one(
@@ -244,7 +266,7 @@ class ClaimService:
         db.log(applicant_id, "提交认领申请", "claim", claim_id)
         return claim_id
 
-    def list_claims(self, applicant_id=None):
+    def list_claims(self, applicant_id=None, status=""):
         sql = """
             SELECT claims.*, items.title AS item_title, users.username AS applicant_name
             FROM claims
@@ -256,6 +278,9 @@ class ClaimService:
         if applicant_id:
             sql += " AND claims.applicant_id = ?"
             params.append(applicant_id)
+        if status in CLAIM_STATUSES:
+            sql += " AND claims.status = ?"
+            params.append(status)
         sql += " ORDER BY claims.created_at DESC"
         return [ClaimRequest.from_row(row) for row in db.query(sql, params)]
 

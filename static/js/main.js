@@ -20,6 +20,15 @@
         var keyword = form.querySelector('input[name="keyword"]');
         var cards = document.querySelectorAll("[data-search]");
         var resultList = document.querySelector("[data-results-list]");
+        var dateMode = form.querySelector("[data-date-mode-field]");
+        form.querySelectorAll("[data-date-input]").forEach(function (input) {
+            input.addEventListener("change", function () {
+                if (dateMode && input.value) {
+                    dateMode.remove();
+                    dateMode = null;
+                }
+            });
+        });
         if (!keyword || !cards.length) return;
         keyword.addEventListener("input", function () {
             var value = keyword.value.trim().toLowerCase();

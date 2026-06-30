@@ -120,18 +120,57 @@ def short_time(value):
 @app.route("/")
 @login_required
 def index():
+    stat = request.args.get("stat", "")
     keyword = request.args.get("keyword", "").strip()
     item_type = request.args.get("item_type", "")
     category = request.args.get("category", "")
     status = request.args.get("status", "")
-    items = item_service.search_items(keyword, item_type, category, status, include_archived=False)
+    start_date = request.args.get("start_date", "")
+    end_date = request.args.get("end_date", "")
+    date_mode = request.args.get("date_mode", "")
+    if stat == "all":
+        keyword = item_type = category = status = start_date = end_date = date_mode = ""
+    filters = {
+        "keyword": keyword,
+        "item_type": item_type,
+        "category": category,
+        "status": status,
+        "start_date": start_date,
+        "end_date": end_date,
+        "date_mode": date_mode,
+        "stat": stat,
+    }
+    items = item_service.search_items(
+        keyword,
+        item_type,
+        category,
+        status,
+        include_archived=False,
+        start_date=start_date,
+        end_date=end_date,
+        date_mode=date_mode,
+    )
     stats = stats_service.dashboard_stats()
+    active_filters = []
+    if keyword:
+        active_filters.append(f"关键词：{keyword}")
+    if item_type:
+        active_filters.append(item_type)
+    if category:
+        active_filters.append(f"分类：{category}")
+    if status:
+        active_filters.append(f"状态：{status}")
+    if date_mode == "today":
+        active_filters.append("今日新增")
+    elif start_date or end_date:
+        active_filters.append(f"日期范围：{start_date or '不限'} 至 {end_date or '不限'}")
     return render_template(
         "index.html",
         items=items,
         stats=stats,
         today_new_items=stats.get("today_new_items", 0),
-        filters=request.args,
+        filters=filters,
+        active_filters=active_filters,
     )
 
 
@@ -293,7 +332,12 @@ def my_priority():
 @login_required
 def my_claims():
     user = current_user()
-    return render_template("my_claims.html", claims=claim_service.list_claims(applicant_id=user.id))
+    status = request.args.get("status", "")
+    return render_template(
+        "my_claims.html",
+        claims=claim_service.list_claims(applicant_id=user.id, status=status),
+        current_status=status,
+    )
 
 
 @app.route("/admin")
@@ -344,8 +388,13 @@ def admin_claims():
         if status in CLAIM_STATUSES:
             claim_service.review_claim(claim_id, status, user.id)
             flash("认领申请审核状态已更新。", "success")
-        return redirect(url_for("admin_claims"))
-    return render_template("admin_claims.html", claims=claim_service.list_claims())
+        return redirect(url_for("admin_claims", status=request.args.get("status", "")))
+    status = request.args.get("status", "")
+    return render_template(
+        "admin_claims.html",
+        claims=claim_service.list_claims(status=status),
+        current_status=status,
+    )
 
 
 @app.route("/admin/priority", methods=["GET", "POST"])

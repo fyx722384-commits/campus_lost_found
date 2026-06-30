@@ -372,6 +372,10 @@ th {
     animation: riseIn 0.42s ease both;
 }
 
+.filter-bar.home-filter {
+    grid-template-columns: 1.4fr repeat(3, minmax(120px, 0.7fr)) repeat(2, minmax(135px, 0.7fr)) auto;
+}
+
 .admin-filter {
     grid-template-columns: minmax(180px, 260px) auto;
 }
@@ -388,9 +392,42 @@ th {
 }
 
 .stat-card {
+    position: relative;
     padding: 18px;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
     animation: riseIn 0.55s ease both;
+}
+
+.stat-link {
+    cursor: pointer;
+}
+
+.stat-link::after {
+    content: "查看";
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    color: var(--blue-dark);
+    font-size: 12px;
+    font-weight: 800;
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.stat-link:hover::after,
+.stat-link.active::after {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.stat-link:active {
+    transform: translateY(-2px) scale(0.98);
+}
+
+.stat-link.active {
+    border-color: rgba(37, 99, 235, 0.48);
+    box-shadow: 0 24px 58px rgba(37, 99, 235, 0.18);
 }
 
 .stat-card:hover,
@@ -431,6 +468,45 @@ th {
 
 .today-stat strong {
     color: var(--green-dark);
+}
+
+.filter-summary,
+.status-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: -8px 0 18px;
+    color: #31516a;
+    font-size: 14px;
+}
+
+.filter-summary span {
+    padding: 8px 11px;
+    border: 1px solid rgba(219, 231, 243, 0.9);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.78);
+}
+
+.status-filter {
+    margin: 0 0 18px;
+}
+
+.filter-chip {
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: #31516a;
+    background: rgba(255, 255, 255, 0.86);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+}
+
+.filter-chip:hover,
+.filter-chip.active {
+    color: var(--blue-dark);
+    border-color: rgba(37, 99, 235, 0.35);
+    box-shadow: 0 12px 28px rgba(30, 64, 175, 0.12);
+    transform: translateY(-2px);
 }
 
 .priority-stat {

@@ -6,6 +6,12 @@
         <p class="eyebrow">My Claims</p>
         <h1>我的认领申请</h1>
     </div>
+    <div class="status-filter">
+        <a class="filter-chip {% if not current_status %}active{% endif %}" href="{{ url_for('my_claims') }}">全部</a>
+        {% for status in claim_statuses %}
+        <a class="filter-chip {% if current_status == status %}active{% endif %}" href="{{ url_for('my_claims', status=status) }}">{{ status }}</a>
+        {% endfor %}
+    </div>
     <div class="table-wrap">
         <table>
             <thead>

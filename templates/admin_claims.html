@@ -11,6 +11,12 @@
     </aside>
     <section class="admin-main">
         <div class="section-title"><p class="eyebrow">Claims</p><h1>认领申请审核</h1></div>
+        <div class="status-filter">
+            <a class="filter-chip {% if not current_status %}active{% endif %}" href="{{ url_for('admin_claims') }}">全部</a>
+            {% for status in claim_statuses %}
+            <a class="filter-chip {% if current_status == status %}active{% endif %}" href="{{ url_for('admin_claims', status=status) }}">{{ status }}</a>
+            {% endfor %}
+        </div>
         <div class="claim-grid">
             {% for claim in claims %}
             <article class="content-card claim-card">
