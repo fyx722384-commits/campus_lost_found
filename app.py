@@ -8,6 +8,7 @@ from werkzeug.utils import secure_filename
 
 from database import db
 from models import User
+from seed_data import ensure_demo_data
 from services import (
     CATEGORIES,
     CLAIM_STATUSES,
@@ -30,6 +31,7 @@ app = Flask(__name__)
 app.secret_key = "campus-lost-found-course-design"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 db.init_db()
+ensure_demo_data()
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 

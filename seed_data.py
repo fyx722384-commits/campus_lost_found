@@ -12,6 +12,11 @@ def reset_database():
     db.init_db()
 
 
+def users_table_empty():
+    row = db.query_one("SELECT COUNT(*) AS count FROM users")
+    return not row or row["count"] == 0
+
+
 def add_user(username, password, role="user", phone=""):
     return db.insert(
         "INSERT INTO users (username, password, role, phone, created_at) VALUES (?, ?, ?, ?, ?)",
@@ -87,9 +92,7 @@ def add_priority(item_id, user_id, level, reason, fee_amount, pay_status, status
     )
 
 
-def main():
-    reset_database()
-
+def seed_demo_data():
     admin = add_user("admin", "admin123", "admin", "13800000000")
     student = add_user("student", "student123", "user", "13900000001")
     alice = add_user("xiaolin", "123456", "user", "13900000002")
@@ -158,6 +161,19 @@ def main():
     print("演示数据已生成。")
     print("管理员：admin / admin123")
     print("普通用户：student / student123")
+
+
+def ensure_demo_data():
+    db.init_db()
+    if not users_table_empty():
+        return False
+    seed_demo_data()
+    return True
+
+
+def main():
+    reset_database()
+    seed_demo_data()
 
 
 if __name__ == "__main__":
