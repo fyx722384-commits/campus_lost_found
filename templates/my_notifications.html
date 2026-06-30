@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}我的消息 - 湖北汽车工业学院校园失物招领信息管理系统{% endblock %}
+{% block content %}
+<section class="content-card wide notification-page">
+    <div class="notification-toolbar">
+        <div class="section-title">
+            <p class="eyebrow">Notifications</p>
+            <h1>我的消息</h1>
+        </div>
+        <form method="post" action="{{ url_for('mark_all_notifications_read') }}" data-read-form>
+            <button class="btn btn-primary" type="submit" {% if not unread_notification_count %}disabled{% endif %}>一键全部已读</button>
+        </form>
+    </div>
+
+    <div class="notification-list">
+        {% for notification in notifications %}
+        <article class="notification-card {% if notification.is_unread() %}unread{% else %}read{% endif %}">
+            <div class="notification-main">
+                <div class="notification-heading">
+                    <h2>{{ notification.title }}</h2>
+                    {% if notification.is_unread() %}
+                    <span class="unread-label">未读</span>
+                    {% else %}
+                    <span class="read-label">已读</span>
+                    {% endif %}
+                </div>
+                <p>{{ notification.content }}</p>
+                <div class="notification-meta">
+                    <span>{{ notification.notification_type }}</span>
+                    <span>{{ notification.created_at|short_time }}</span>
+                </div>
+            </div>
+            {% if notification.is_unread() %}
+            <form method="post" action="{{ url_for('mark_notification_read', notification_id=notification.id) }}" data-read-form>
+                <button class="btn btn-sm btn-ghost" type="submit">标记为已读</button>
+            </form>
+            {% endif %}
+        </article>
+        {% else %}
+        <div class="empty-state">暂无站内消息。</div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

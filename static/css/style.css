@@ -163,6 +163,21 @@ th {
     transform: scaleX(1);
 }
 
+.nav-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    margin-left: 5px;
+    padding: 0 6px;
+    border-radius: 999px;
+    color: #fff;
+    background: var(--red);
+    font-size: 12px;
+    font-weight: 800;
+}
+
 .user-box {
     gap: 10px;
     color: var(--muted);
@@ -293,6 +308,13 @@ th {
 
 .btn:hover {
     transform: translateY(-2px);
+}
+
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+    transform: none;
+    box-shadow: none;
 }
 
 .btn:active {
@@ -1009,6 +1031,170 @@ th {
     transform: translateX(0);
 }
 
+.admin-reminder-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 18px 0;
+}
+
+.admin-reminder-card {
+    display: block;
+    padding: 18px;
+    border: 1px solid rgba(219, 231, 243, 0.9);
+    border-radius: var(--radius);
+    background: linear-gradient(135deg, rgba(239, 246, 255, 0.96), rgba(255, 255, 255, 0.96));
+    box-shadow: var(--shadow);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.admin-reminder-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(37, 99, 235, 0.3);
+    box-shadow: 0 24px 58px rgba(30, 64, 175, 0.17);
+}
+
+.admin-reminder-card.priority {
+    background: linear-gradient(135deg, #fff7ed, #ffffff);
+    border-color: #fed7aa;
+}
+
+.admin-reminder-card.message {
+    background: linear-gradient(135deg, #ecfdf5, #ffffff);
+    border-color: #bbf7d0;
+}
+
+.admin-reminder-card span,
+.admin-reminder-card small {
+    color: var(--muted);
+}
+
+.admin-reminder-card strong {
+    display: block;
+    margin: 8px 0 4px;
+    color: var(--blue-dark);
+    font-size: 30px;
+}
+
+.admin-reminder-card.priority strong {
+    color: #ea580c;
+}
+
+.admin-reminder-card.message strong {
+    color: var(--green-dark);
+}
+
+.notification-page {
+    animation: riseIn 0.45s ease both;
+}
+
+.notification-toolbar {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.notification-list {
+    display: grid;
+    gap: 14px;
+}
+
+.notification-card {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 18px 18px 22px;
+    border: 1px solid rgba(219, 231, 243, 0.9);
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.94);
+    box-shadow: 0 12px 28px rgba(30, 64, 175, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+
+.notification-card::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    bottom: 14px;
+    left: 0;
+    width: 5px;
+    border-radius: 0 999px 999px 0;
+    background: var(--green);
+}
+
+.notification-card.read {
+    opacity: 0.72;
+}
+
+.notification-card.read::before {
+    background: #cbd5e1;
+}
+
+.notification-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(37, 99, 235, 0.28);
+    box-shadow: 0 24px 58px rgba(30, 64, 175, 0.17);
+}
+
+.notification-main {
+    display: grid;
+    gap: 8px;
+}
+
+.notification-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.notification-heading h2,
+.notification-main p {
+    margin: 0;
+}
+
+.notification-main p {
+    color: #31516a;
+    line-height: 1.7;
+}
+
+.notification-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.notification-meta span,
+.unread-label,
+.read-label {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    min-height: 24px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.notification-meta span {
+    color: #475569;
+    background: #f1f5f9;
+}
+
+.unread-label {
+    color: #047857;
+    background: #d1fae5;
+}
+
+.read-label {
+    color: #475569;
+    background: #e2e8f0;
+}
+
 .dashboard-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1207,7 +1393,8 @@ th {
     .dashboard-grid,
     .match-card,
     .form-grid.two-col,
-    .priority-level-grid {
+    .priority-level-grid,
+    .admin-reminder-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1223,6 +1410,12 @@ th {
     .side-card,
     .admin-sidebar {
         position: static;
+    }
+
+    .notification-toolbar,
+    .notification-card {
+        align-items: stretch;
+        flex-direction: column;
     }
 }
 

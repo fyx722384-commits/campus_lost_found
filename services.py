@@ -2,7 +2,7 @@ import re
 from datetime import datetime, timedelta
 
 from database import db
-from models import ClaimRequest, Item, PriorityRequest
+from models import ClaimRequest, Item, Notification, PriorityRequest
 
 
 CATEGORIES = ["证件", "电子产品", "书籍", "生活用品", "钥匙", "校园卡", "其他"]
@@ -247,6 +247,68 @@ class MatchService:
         return None
 
 
+class NotificationService:
+    def create_notification(
+        self,
+        user_id,
+        title,
+        content,
+        notification_type="系统提醒",
+        related_type="",
+        related_id=None,
+    ):
+        if not user_id:
+            return None
+        return db.insert(
+            """
+            INSERT INTO notifications
+            (user_id, title, content, notification_type, is_read, related_type, related_id, created_at)
+            VALUES (?, ?, ?, ?, 0, ?, ?, ?)
+            """,
+            (
+                user_id,
+                title,
+                content,
+                notification_type,
+                related_type,
+                related_id,
+                datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            ),
+        )
+
+    def get_user_notifications(self, user_id):
+        rows = db.query(
+            """
+            SELECT *
+            FROM notifications
+            WHERE user_id = ?
+            ORDER BY is_read ASC, datetime(created_at) DESC, id DESC
+            """,
+            (user_id,),
+        )
+        return [Notification.from_row(row) for row in rows]
+
+    def count_unread(self, user_id):
+        row = db.query_one(
+            "SELECT COUNT(*) AS count FROM notifications WHERE user_id = ? AND is_read = 0",
+            (user_id,),
+        )
+        return row["count"] if row else 0
+
+    def mark_as_read(self, notification_id, user_id):
+        exists = db.query_one(
+            "SELECT id FROM notifications WHERE id = ? AND user_id = ?",
+            (notification_id, user_id),
+        )
+        if not exists:
+            return False
+        db.execute("UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?", (notification_id, user_id))
+        return True
+
+    def mark_all_as_read(self, user_id):
+        db.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0", (user_id,))
+
+
 class ClaimService:
     def submit_claim(self, item_id, applicant_id, reason, contact):
         exists = db.query_one(
@@ -285,22 +347,61 @@ class ClaimService:
         return [ClaimRequest.from_row(row) for row in db.query(sql, params)]
 
     def review_claim(self, claim_id, status, admin_id):
+        claim_detail = db.query_one(
+            """
+            SELECT claims.*, items.title AS item_title
+            FROM claims
+            JOIN items ON items.id = claims.item_id
+            WHERE claims.id = ?
+            """,
+            (claim_id,),
+        )
+        if not claim_detail:
+            raise ValueError("认领申请不存在。")
+        old_status = claim_detail["status"]
         reviewed_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         db.execute("UPDATE claims SET status = ?, reviewed_at = ? WHERE id = ?", (status, reviewed_at, claim_id))
-        claim = db.query_one("SELECT item_id FROM claims WHERE id = ?", (claim_id,))
-        if claim:
-            if status == "已通过":
-                db.execute("UPDATE items SET status = '认领中' WHERE id = ?", (claim["item_id"],))
-            elif status == "已驳回":
-                waiting = db.query_one(
-                    "SELECT COUNT(*) AS c FROM claims WHERE item_id = ? AND status IN ('待审核', '已通过')",
-                    (claim["item_id"],),
-                )
-                if waiting["c"] == 0:
-                    db.execute("UPDATE items SET status = '待认领' WHERE id = ?", (claim["item_id"],))
-            elif status == "已完成":
-                db.execute("UPDATE items SET status = '已归还' WHERE id = ?", (claim["item_id"],))
+        if status == "已通过":
+            db.execute("UPDATE items SET status = '认领中' WHERE id = ?", (claim_detail["item_id"],))
+        elif status == "已驳回":
+            waiting = db.query_one(
+                "SELECT COUNT(*) AS c FROM claims WHERE item_id = ? AND status IN ('待审核', '已通过')",
+                (claim_detail["item_id"],),
+            )
+            if waiting["c"] == 0:
+                db.execute("UPDATE items SET status = '待认领' WHERE id = ?", (claim_detail["item_id"],))
+        elif status == "已完成":
+            db.execute("UPDATE items SET status = '已归还' WHERE id = ?", (claim_detail["item_id"],))
+        if old_status != status:
+            self._notify_claim_review(claim_detail, status, claim_id)
         db.log(admin_id, f"审核认领申请为{status}", "claim", claim_id)
+
+    def _notify_claim_review(self, claim_detail, status, claim_id):
+        item_title = claim_detail["item_title"]
+        messages = {
+            "已通过": (
+                "认领申请已通过",
+                f"你提交的【{item_title}】认领申请已通过，请及时联系管理员或发布者完成领取。",
+            ),
+            "已驳回": (
+                "认领申请已驳回",
+                f"你提交的【{item_title}】认领申请未通过，请补充有效证明后再尝试。",
+            ),
+            "已完成": (
+                "物品已完成归还",
+                f"你认领的【{item_title}】已完成归还流程，感谢使用湖北汽车工业学院校园失物招领系统。",
+            ),
+        }
+        if status in messages:
+            title, content = messages[status]
+            notification_service.create_notification(
+                claim_detail["applicant_id"],
+                title,
+                content,
+                "认领审核",
+                "claim",
+                claim_id,
+            )
 
 
 class PriorityService:
@@ -351,8 +452,7 @@ class PriorityService:
         return priority_id
 
     def approve_priority_request(self, request_id, admin_id):
-        request_row = db.query_one("SELECT * FROM priority_requests WHERE id = ?", (request_id,))
-        request_obj = PriorityRequest.from_row(request_row)
+        request_obj = self.get_priority_request(request_id)
         if not request_obj:
             raise ValueError("加急申请不存在。")
         hours = PRIORITY_LEVELS.get(request_obj.level, PRIORITY_LEVELS["普通加急"])["hours"]
@@ -366,21 +466,34 @@ class PriorityService:
                 request_id,
             ),
         )
+        self._notify_priority_review(request_obj, "已通过", request_id)
         db.log(admin_id, "通过加急寻物申请", "priority_request", request_id)
 
     def reject_priority_request(self, request_id, admin_id):
+        request_obj = self.get_priority_request(request_id)
+        if not request_obj:
+            raise ValueError("加急申请不存在。")
         db.execute(
             "UPDATE priority_requests SET status = '已驳回', reviewed_at = ? WHERE id = ?",
             (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), request_id),
         )
+        self._notify_priority_review(request_obj, "已驳回", request_id)
         db.log(admin_id, "驳回加急寻物申请", "priority_request", request_id)
 
     def finish_priority_request(self, request_id, admin_id):
+        request_obj = self.get_priority_request(request_id)
+        if not request_obj:
+            raise ValueError("加急申请不存在。")
         db.execute(
             "UPDATE priority_requests SET status = '已结束', reviewed_at = ? WHERE id = ?",
             (datetime.now().strftime("%Y-%m-%d %H:%M:%S"), request_id),
         )
+        self._notify_priority_review(request_obj, "已结束", request_id)
         db.log(admin_id, "结束加急寻物服务", "priority_request", request_id)
+
+    def get_priority_request(self, request_id):
+        rows = self._query_priority_requests("priority_requests.id = ?", (request_id,))
+        return rows[0] if rows else None
 
     def get_user_priority_requests(self, user_id):
         return self._query_priority_requests("priority_requests.user_id = ?", (user_id,))
@@ -441,6 +554,33 @@ class PriorityService:
             params,
         )
         return [PriorityRequest.from_row(row) for row in rows]
+
+    def _notify_priority_review(self, request_obj, status, request_id):
+        item_title = request_obj.item_title
+        messages = {
+            "已通过": (
+                "加急寻物申请已通过",
+                f"你的【{item_title}】加急寻物申请已通过，系统将优先展示并提高匹配排序。",
+            ),
+            "已驳回": (
+                "加急寻物申请已驳回",
+                f"你的【{item_title}】加急寻物申请未通过，请检查申请原因是否充分。",
+            ),
+            "已结束": (
+                "加急寻物服务已结束",
+                f"你的【{item_title}】加急寻物服务已结束，物品信息仍可继续正常展示。",
+            ),
+        }
+        if status in messages:
+            title, content = messages[status]
+            notification_service.create_notification(
+                request_obj.user_id,
+                title,
+                content,
+                "加急审核",
+                "priority",
+                request_id,
+            )
 
 
 class StatsService:
@@ -519,3 +659,4 @@ match_service = MatchService()
 claim_service = ClaimService()
 stats_service = StatsService()
 priority_service = PriorityService()
+notification_service = NotificationService()

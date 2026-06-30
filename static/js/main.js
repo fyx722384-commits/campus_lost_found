@@ -79,4 +79,14 @@
         select.addEventListener("change", updateTip);
         updateTip();
     });
+
+    document.querySelectorAll("[data-read-form]").forEach(function (form) {
+        form.addEventListener("submit", function () {
+            var button = form.querySelector("button[type='submit']");
+            if (!button) return;
+            button.dataset.originalText = button.textContent;
+            button.textContent = "处理中...";
+            button.disabled = true;
+        });
+    });
 })();

@@ -14,6 +14,23 @@
             <p class="eyebrow">Admin Dashboard</p>
             <h1>湖北汽车工业学院失物招领管理后台</h1>
         </div>
+        <div class="admin-reminder-grid">
+            <a class="admin-reminder-card" href="{{ url_for('admin_claims', status='待审核') }}">
+                <span>待审核认领申请</span>
+                <strong>{{ stats.pending_claims }}</strong>
+                <small>点击进入认领审核列表</small>
+            </a>
+            <a class="admin-reminder-card priority" href="{{ url_for('admin_priority', status='待审核') }}">
+                <span>待审核加急申请</span>
+                <strong>{{ stats.pending_priority }}</strong>
+                <small>点击进入加急工单管理</small>
+            </a>
+            <a class="admin-reminder-card message" href="{{ url_for('my_notifications') }}">
+                <span>未读通知</span>
+                <strong>{{ admin_unread_notifications }}</strong>
+                <small>查看发给当前管理员的消息</small>
+            </a>
+        </div>
         <div class="stats-grid">
             <div class="stat-card"><span>总发布数量</span><strong>{{ stats.total_items }}</strong></div>
             <div class="stat-card"><span>失物数量</span><strong>{{ stats.lost_count }}</strong></div>

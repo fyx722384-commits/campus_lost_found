@@ -248,3 +248,49 @@ class PriorityRequest:
             return datetime.strptime(self.expire_at, "%Y-%m-%d %H:%M:%S") > datetime.now()
         except ValueError:
             return False
+
+
+class Notification:
+    def __init__(
+        self,
+        id=None,
+        user_id=None,
+        title="",
+        content="",
+        notification_type="系统提醒",
+        is_read=0,
+        related_type="",
+        related_id=None,
+        created_at=None,
+    ):
+        self.id = id
+        self.user_id = user_id
+        self.title = title
+        self.content = content
+        self.notification_type = notification_type
+        self.is_read = int(is_read or 0)
+        self.related_type = related_type or ""
+        self.related_id = related_id
+        self.created_at = created_at or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    @classmethod
+    def from_row(cls, row):
+        if row is None:
+            return None
+        return cls(
+            id=row["id"],
+            user_id=row["user_id"],
+            title=row["title"],
+            content=row["content"],
+            notification_type=row["notification_type"],
+            is_read=row["is_read"],
+            related_type=row["related_type"],
+            related_id=row["related_id"],
+            created_at=row["created_at"],
+        )
+
+    def mark_read(self):
+        self.is_read = 1
+
+    def is_unread(self):
+        return self.is_read == 0

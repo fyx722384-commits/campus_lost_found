@@ -92,6 +92,87 @@ def add_priority(item_id, user_id, level, reason, fee_amount, pay_status, status
     )
 
 
+def add_notification(user_id, title, content, notification_type, is_read=0, related_type="", related_id=None):
+    return db.insert(
+        """
+        INSERT INTO notifications
+        (user_id, title, content, notification_type, is_read, related_type, related_id, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            user_id,
+            title,
+            content,
+            notification_type,
+            is_read,
+            related_type,
+            related_id,
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        ),
+    )
+
+
+def notifications_table_empty():
+    row = db.query_one("SELECT COUNT(*) AS count FROM notifications")
+    return not row or row["count"] == 0
+
+
+def ensure_demo_notifications():
+    if not notifications_table_empty():
+        return False
+    student = db.query_one("SELECT id FROM users WHERE username = ?", ("student",))
+    alice = db.query_one("SELECT id FROM users WHERE username = ?", ("xiaolin",))
+    admin = db.query_one("SELECT id FROM users WHERE username = ?", ("admin",))
+    if not student or not alice or not admin:
+        return False
+    add_notification(
+        student["id"],
+        "认领申请已通过",
+        "你提交的【蓝色校园卡】认领申请已通过，请及时联系管理员或发布者完成领取。",
+        "认领审核",
+        0,
+        "claim",
+        None,
+    )
+    add_notification(
+        student["id"],
+        "认领申请已驳回",
+        "你提交的【身份证】认领申请未通过，请补充有效证明后再尝试。",
+        "认领审核",
+        0,
+        "claim",
+        None,
+    )
+    add_notification(
+        student["id"],
+        "加急寻物申请已通过",
+        "你的【蓝色校园卡】加急寻物申请已通过，系统将优先展示并提高匹配排序。",
+        "加急审核",
+        0,
+        "priority",
+        None,
+    )
+    add_notification(
+        admin["id"],
+        "系统提醒",
+        "管理员后台已启用待审核事项和未读通知提醒，可在首页快速进入处理。",
+        "系统提醒",
+        0,
+        "system",
+        None,
+    )
+    add_notification(
+        alice["id"],
+        "物品已完成归还",
+        "你认领的【高等数学教材】已完成归还流程，感谢使用湖北汽车工业学院校园失物招领系统。",
+        "认领审核",
+        1,
+        "claim",
+        None,
+    )
+    return True
+
+
 def seed_demo_data():
     admin = add_user("admin", "admin123", "admin", "13800000000")
     student = add_user("student", "student123", "user", "13900000001")
@@ -158,6 +239,7 @@ def seed_demo_data():
     for index, item_id in enumerate(item_ids[:12]):
         db.log(users[index % len(users)], "导入演示物品", "item", item_id)
     db.log(admin, "初始化演示数据", "system", None)
+    ensure_demo_notifications()
     print("演示数据已生成。")
     print("管理员：admin / admin123")
     print("普通用户：student / student123")
@@ -165,10 +247,11 @@ def seed_demo_data():
 
 def ensure_demo_data():
     db.init_db()
-    if not users_table_empty():
-        return False
-    seed_demo_data()
-    return True
+    if users_table_empty():
+        seed_demo_data()
+        return True
+    ensure_demo_notifications()
+    return False
 
 
 def main():

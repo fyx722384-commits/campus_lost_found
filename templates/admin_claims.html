@@ -25,7 +25,7 @@
                     <span class="status-badge {{ claim.status|status_class }}">{{ claim.status }}</span>
                 </div>
                 <p><strong>申请人：</strong>{{ claim.applicant_name }}</p>
-                <p><strong>申请说明：</strong>{{ claim.reason }}</p>
+                <p><strong>认领说明 / 物品特征证明：</strong>{{ claim.reason }}</p>
                 <p><strong>联系方式：</strong>{{ claim.contact }}</p>
                 <p class="muted">申请时间：{{ claim.created_at|short_time }}</p>
                 <form method="post" class="review-actions">

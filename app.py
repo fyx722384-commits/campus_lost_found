@@ -18,6 +18,7 @@ from services import (
     claim_service,
     item_service,
     match_service,
+    notification_service,
     priority_service,
     stats_service,
 )
@@ -84,13 +85,15 @@ def admin_required(view):
 
 @app.context_processor
 def inject_globals():
+    user = current_user()
     return {
-        "current_user": current_user(),
+        "current_user": user,
         "categories": CATEGORIES,
         "item_statuses": ITEM_STATUSES,
         "claim_statuses": CLAIM_STATUSES,
         "priority_levels": PRIORITY_LEVELS,
         "priority_statuses": PRIORITY_STATUSES,
+        "unread_notification_count": notification_service.count_unread(user.id) if user else 0,
     }
 
 
@@ -340,9 +343,40 @@ def my_claims():
     )
 
 
+@app.route("/my-notifications")
+@login_required
+def my_notifications():
+    user = current_user()
+    return render_template(
+        "my_notifications.html",
+        notifications=notification_service.get_user_notifications(user.id),
+    )
+
+
+@app.route("/notification/read/<int:notification_id>", methods=["POST"])
+@login_required
+def mark_notification_read(notification_id):
+    user = current_user()
+    if notification_service.mark_as_read(notification_id, user.id):
+        flash("消息已标记为已读。", "success")
+    else:
+        flash("消息不存在或无权操作。", "warning")
+    return redirect(request.referrer or url_for("my_notifications"))
+
+
+@app.route("/notifications/read-all", methods=["POST"])
+@login_required
+def mark_all_notifications_read():
+    user = current_user()
+    notification_service.mark_all_as_read(user.id)
+    flash("所有消息已标记为已读。", "success")
+    return redirect(url_for("my_notifications"))
+
+
 @app.route("/admin")
 @admin_required
 def admin_dashboard():
+    user = current_user()
     return render_template(
         "admin_dashboard.html",
         stats=stats_service.dashboard_stats(),
@@ -350,6 +384,7 @@ def admin_dashboard():
         trend_stats=stats_service.trend_stats(),
         claims=claim_service.list_claims(),
         priority_requests=priority_service.get_admin_priority_requests("待审核"),
+        admin_unread_notifications=notification_service.count_unread(user.id),
     )
 
 
@@ -386,8 +421,11 @@ def admin_claims():
         claim_id = request.form.get("claim_id", type=int)
         status = request.form.get("status")
         if status in CLAIM_STATUSES:
-            claim_service.review_claim(claim_id, status, user.id)
-            flash("认领申请审核状态已更新。", "success")
+            try:
+                claim_service.review_claim(claim_id, status, user.id)
+                flash("认领申请审核状态已更新。", "success")
+            except ValueError as exc:
+                flash(str(exc), "warning")
         return redirect(url_for("admin_claims", status=request.args.get("status", "")))
     status = request.args.get("status", "")
     return render_template(

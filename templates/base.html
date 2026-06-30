@@ -21,6 +21,9 @@
         <a class="{% if request.endpoint == 'my_items' %}active{% endif %}" href="{{ url_for('my_items') }}">我的发布</a>
         <a class="{% if request.endpoint == 'my_claims' %}active{% endif %}" href="{{ url_for('my_claims') }}">我的申请</a>
         <a class="{% if request.endpoint == 'my_priority' %}active{% endif %}" href="{{ url_for('my_priority') }}">我的加急申请</a>
+        <a class="{% if request.endpoint == 'my_notifications' %}active{% endif %}" href="{{ url_for('my_notifications') }}">
+            我的消息{% if unread_notification_count %}<span class="nav-count">{{ unread_notification_count }}</span>{% endif %}
+        </a>
         {% if current_user.is_admin() %}
         <a class="{% if request.endpoint and request.endpoint.startswith('admin_') %}active{% endif %}" href="{{ url_for('admin_dashboard') }}">管理员后台</a>
         {% endif %}

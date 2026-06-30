@@ -52,10 +52,10 @@
         {% endif %}
         {% elif item.can_claim() or item.status == '认领中' %}
         <h2>提交认领申请</h2>
-        <p class="muted">请写清能证明归属的特征，管理员会根据申请说明进行审核。</p>
+        <p class="muted">请填写能够证明物品属于你的信息，例如物品颜色、品牌、特殊标记、丢失地点、丢失时间等。</p>
         <form method="post" class="form-grid">
-            <label>申请说明
-                <textarea name="reason" rows="5" placeholder="例如：物品特殊标记、遗失时间、可验证内容" required></textarea>
+            <label>认领说明 / 物品特征证明
+                <textarea name="reason" rows="5" placeholder="例如：物品颜色、品牌、特殊标记、丢失地点、丢失时间等" required></textarea>
             </label>
             <label>联系方式
                 <input name="contact" value="{{ current_user.phone }}" placeholder="请填写可联系到你的方式" required>
