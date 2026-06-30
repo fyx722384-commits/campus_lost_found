@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{% block title %}校园失物招领信息管理系统{% endblock %}</title>
+    <title>{% block title %}湖北汽车工业学院校园失物招领信息管理系统{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body class="{% block body_class %}{% endblock %}">
@@ -11,7 +11,8 @@
 <header class="topbar">
     <a class="brand" href="{{ url_for('index') }}">
         <span class="brand-mark">拾</span>
-        <span>校园失物招领</span>
+        <span class="brand-full">湖北汽车工业学院失物招领</span>
+        <span class="brand-short">湖汽院失物招领</span>
     </a>
     <nav class="nav-links">
         <a class="{% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">首页</a>
@@ -40,6 +41,10 @@
 <main class="{% if current_user %}page-shell{% endif %}">
     {% block content %}{% endblock %}
 </main>
+
+{% if current_user %}
+<footer class="site-footer">湖北汽车工业学院校园失物招领信息管理系统 · 课程设计原型</footer>
+{% endif %}
 
 <div id="toast-root" class="toast-root"></div>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>

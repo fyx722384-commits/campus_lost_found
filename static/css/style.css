@@ -102,6 +102,10 @@ th {
     white-space: nowrap;
 }
 
+.brand-short {
+    display: none;
+}
+
 .brand-mark {
     display: inline-grid;
     place-items: center;
@@ -168,6 +172,14 @@ th {
     width: min(1180px, calc(100% - 32px));
     margin: 28px auto 60px;
     animation: pageEnter 0.45s ease both;
+}
+
+.site-footer {
+    width: min(1180px, calc(100% - 32px));
+    margin: -34px auto 32px;
+    color: var(--muted);
+    font-size: 13px;
+    text-align: center;
 }
 
 .animate-in {
@@ -1178,6 +1190,14 @@ th {
     .topbar {
         position: static;
         padding: 14px 18px;
+    }
+
+    .brand-full {
+        display: none;
+    }
+
+    .brand-short {
+        display: inline;
     }
 
     .filter-bar,
