@@ -10,54 +10,41 @@
     <a class="btn btn-primary" href="{{ url_for('publish') }}">发布失物 / 招领</a>
 </section>
 
-<section class="notice-board animate-in">
-    <div class="notice-header">
-        <p class="eyebrow">Notice</p>
-        <h2>校园公告</h2>
-    </div>
-    <div class="notice-grid">
-        <article class="notice-card">
-            <span>①</span>
-            <p>拾到物品的同学请及时在湖北汽车工业学院失物招领平台发布招领信息。</p>
-        </article>
-        <article class="notice-card">
-            <span>②</span>
-            <p>认领校园卡、身份证、钥匙等重要物品时，请提供有效证明。</p>
-        </article>
-        <article class="notice-card">
-            <span>③</span>
-            <p>加急寻物服务仅提高曝光和处理优先级，不承诺一定找回物品。</p>
-        </article>
-    </div>
-</section>
+<button class="notice-float-btn" type="button" data-notice-open>公告</button>
 
-<section class="contact-card home-contact-card animate-in">
-    <div class="contact-card-main">
-        <p class="eyebrow">Service</p>
-        <h2>联系管理员</h2>
-        <p>如遇到认领争议、信息错误、加急申请问题或重要物品核验问题，可联系校园失物招领管理员协助处理。</p>
-        <p class="contact-demo-note">以上联系方式仅用于课程设计原型展示，实际使用时应替换为学校正式公布的服务电话或管理渠道。</p>
-    </div>
-    <div class="contact-list">
-        <span>☎ 联系电话：0719-0000000（课程设计演示）</span>
-        <span>⏰ 服务时间：工作日 8:30 - 18:00</span>
-        <span>✉ 联系邮箱：campus-lostfound@example.com（课程设计演示）</span>
-    </div>
-</section>
-
-<section class="helper-card usage-guide-card animate-in">
-    <div class="helper-card-heading">
-        <p class="eyebrow">Guide</p>
-        <h2>使用说明</h2>
-    </div>
-    <ol class="guide-list">
-        <li>丢失物品后，建议先使用关键词、分类和日期进行查找。</li>
-        <li>未找到对应信息时，可以发布失物信息。</li>
-        <li>拾到物品后，请及时发布招领信息。</li>
-        <li>认领重要物品时，需要填写物品特征证明。</li>
-        <li>管理员审核后，系统会通过站内消息通知处理结果。</li>
-    </ol>
-</section>
+<div class="campus-notice-modal" data-campus-notice aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="campus-notice-title">
+    <div class="campus-notice-backdrop" data-notice-close></div>
+    <section class="campus-notice-dialog" role="document">
+        <div class="campus-notice-header">
+            <div>
+                <p class="eyebrow">Notice</p>
+                <h2 id="campus-notice-title">校园公告与使用说明</h2>
+            </div>
+            <button type="button" aria-label="关闭校园公告" data-notice-close>×</button>
+        </div>
+        <div class="campus-notice-section">
+            <h3>校园公告</h3>
+            <ol class="campus-notice-list">
+                <li>拾到物品的同学请及时在湖北汽车工业学院失物招领平台发布招领信息。</li>
+                <li>认领校园卡、身份证、钥匙等重要物品时，请提供有效证明。</li>
+                <li>加急寻物服务仅提高曝光和处理优先级，不承诺一定找回物品。</li>
+            </ol>
+        </div>
+        <div class="campus-notice-section">
+            <h3>使用说明</h3>
+            <ol class="campus-notice-list">
+                <li>丢失物品后，建议先使用关键词、分类和日期进行查找。</li>
+                <li>未找到对应信息时，可以发布失物信息。</li>
+                <li>拾到物品后，请及时发布招领信息。</li>
+                <li>认领重要物品时，需要填写物品特征证明。</li>
+                <li>管理员审核后，系统会通过站内消息通知处理结果。</li>
+            </ol>
+        </div>
+        <div class="campus-notice-actions">
+            <button class="btn btn-primary" type="button" data-notice-close>我知道了</button>
+        </div>
+    </section>
+</div>
 
 <section class="stats-grid compact">
     <a class="stat-card stat-link {% if filters.get('stat') == 'all' or not active_filters %}active{% endif %}" href="{{ url_for('index', stat='all') }}">

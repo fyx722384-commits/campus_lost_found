@@ -62,6 +62,65 @@
 
     document.body.classList.add("page-ready");
 
+    document.querySelectorAll("[data-campus-notice]").forEach(function (modal) {
+        var openButtons = document.querySelectorAll("[data-notice-open]");
+        var closeButtons = modal.querySelectorAll("[data-notice-close]");
+        var storageKey = "campusNoticeClosed";
+
+        function storageClosed() {
+            try {
+                return sessionStorage.getItem(storageKey) === "true";
+            } catch (error) {
+                return false;
+            }
+        }
+
+        function rememberClosed() {
+            try {
+                sessionStorage.setItem(storageKey, "true");
+            } catch (error) {
+                return;
+            }
+        }
+
+        function openNotice() {
+            modal.classList.add("is-open");
+            modal.setAttribute("aria-hidden", "false");
+            document.body.classList.add("notice-modal-open");
+        }
+
+        function closeNotice(remember) {
+            modal.classList.remove("is-open");
+            modal.setAttribute("aria-hidden", "true");
+            document.body.classList.remove("notice-modal-open");
+            if (remember) {
+                rememberClosed();
+            }
+        }
+
+        if (!storageClosed()) {
+            window.setTimeout(openNotice, 220);
+        }
+
+        openButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                openNotice();
+            });
+        });
+
+        closeButtons.forEach(function (button) {
+            button.addEventListener("click", function () {
+                closeNotice(true);
+            });
+        });
+
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && modal.classList.contains("is-open")) {
+                closeNotice(true);
+            }
+        });
+    });
+
     document.querySelectorAll("[data-contact-widget]").forEach(function (widget) {
         var toggle = widget.querySelector("[data-contact-toggle]");
         var panel = widget.querySelector("[data-contact-panel]");
