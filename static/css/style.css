@@ -730,9 +730,10 @@ th {
     content: "优先";
     position: absolute;
     top: 14px;
-    right: -9px;
+    right: 12px;
+    z-index: 2;
     padding: 5px 10px;
-    border-radius: 8px 0 0 8px;
+    border-radius: 999px;
     color: white;
     font-size: 12px;
     font-weight: 800;
@@ -766,6 +767,10 @@ th {
     min-width: 0;
 }
 
+.priority-card .item-card-top {
+    padding-right: 52px;
+}
+
 .type-pill,
 .status-badge,
 .reason-list span,
@@ -787,6 +792,7 @@ th {
     align-items: center;
     flex-wrap: wrap;
     gap: 7px;
+    flex: 1 1 auto;
     min-width: 0;
 }
 
@@ -1769,6 +1775,7 @@ th {
     }
 
     .priority-card::before {
+        top: 8px;
         right: 8px;
         padding: 4px 8px;
     }
@@ -1777,6 +1784,10 @@ th {
         align-items: flex-start;
         flex-direction: column;
         gap: 8px;
+    }
+
+    .priority-card .item-card-top {
+        padding-right: 44px;
     }
 
     .item-card h2 {

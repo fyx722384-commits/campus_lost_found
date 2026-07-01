@@ -95,8 +95,8 @@
                 <span class="priority-badge">加急寻物</span>
                 <span class="priority-mini">优先匹配中</span>
                 {% endif %}
+                <span class="status-badge {{ item.status|status_class }}">{{ item.status }}</span>
             </div>
-            <span class="status-badge {{ item.status|status_class }}">{{ item.status }}</span>
         </div>
         <h2>{{ item.title }}</h2>
         {% if item.has_active_priority() %}
