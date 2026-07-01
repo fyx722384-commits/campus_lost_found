@@ -294,3 +294,52 @@ class Notification:
 
     def is_unread(self):
         return self.is_read == 0
+
+
+class SupportMessage:
+    def __init__(
+        self,
+        id=None,
+        user_id=None,
+        username="",
+        content="",
+        reply="",
+        status="待回复",
+        created_at=None,
+        replied_at=None,
+        admin_id=None,
+    ):
+        self.id = id
+        self.user_id = user_id
+        self.username = username
+        self.content = content
+        self.reply = reply or ""
+        self.status = status
+        self.created_at = created_at or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.replied_at = replied_at
+        self.admin_id = admin_id
+
+    @classmethod
+    def from_row(cls, row):
+        if row is None:
+            return None
+        return cls(
+            id=row["id"],
+            user_id=row["user_id"],
+            username=row["username"],
+            content=row["content"],
+            reply=row["reply"],
+            status=row["status"],
+            created_at=row["created_at"],
+            replied_at=row["replied_at"],
+            admin_id=row["admin_id"],
+        )
+
+    def is_replied(self):
+        return self.status == "已回复"
+
+    def mark_replied(self, reply, admin_id):
+        self.reply = reply
+        self.admin_id = admin_id
+        self.status = "已回复"
+        self.replied_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

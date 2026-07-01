@@ -7,6 +7,7 @@
         <a href="{{ url_for('admin_items') }}">物品管理</a>
         <a href="{{ url_for('admin_claims') }}">认领审核</a>
         <a href="{{ url_for('admin_priority') }}">加急工单管理</a>
+        <a href="{{ url_for('admin_support') }}">咨询留言</a>
         <a href="{{ url_for('admin_users') }}">用户管理</a>
     </aside>
     <section class="admin-main">
@@ -30,6 +31,11 @@
                 <strong>{{ admin_unread_notifications }}</strong>
                 <small>查看发给当前管理员的消息</small>
             </a>
+            <a class="admin-reminder-card support" href="{{ url_for('admin_support', status='待回复') }}">
+                <span>待回复咨询</span>
+                <strong>{{ stats.pending_support }}</strong>
+                <small>点击进入咨询留言管理</small>
+            </a>
         </div>
         <div class="stats-grid">
             <div class="stat-card"><span>总发布数量</span><strong>{{ stats.total_items }}</strong></div>
@@ -42,6 +48,7 @@
             <div class="stat-card priority-stat"><span>待审加急</span><strong>{{ stats.pending_priority }}</strong></div>
             <div class="stat-card priority-stat"><span>进行中加急</span><strong>{{ stats.active_priority }}</strong></div>
             <div class="stat-card priority-stat"><span>已结束加急</span><strong>{{ stats.finished_priority }}</strong></div>
+            <div class="stat-card support-stat"><span>待回复咨询</span><strong>{{ stats.pending_support }}</strong></div>
         </div>
         <div class="dashboard-grid">
             <article class="content-card">

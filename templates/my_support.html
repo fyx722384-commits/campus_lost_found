@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}我的咨询 - 湖北汽车工业学院校园失物招领信息管理系统{% endblock %}
+{% block content %}
+<section class="section-title">
+    <p class="eyebrow">My Support</p>
+    <h1>我的咨询</h1>
+    <p>这里展示你通过右下角“在线咨询”提交的站内留言和管理员回复。</p>
+</section>
+
+<section class="support-intro contact-hint">
+    <strong>站内咨询留言</strong>
+    <p>本功能为课程设计原型中的站内咨询留言功能，不是实时人工客服。管理员处理后，系统会通过站内消息提醒你。</p>
+</section>
+
+<section class="support-list">
+    {% for message in messages %}
+    <article class="content-card support-message-card {% if message.is_replied() %}is-replied{% endif %}">
+        <div class="item-card-top">
+            <div>
+                <p class="eyebrow">咨询内容</p>
+                <h2>{{ message.content }}</h2>
+            </div>
+            <span class="status-badge {{ message.status|status_class }}">{{ message.status }}</span>
+        </div>
+        <div class="ticket-meta">
+            <span>提交时间：{{ message.created_at|short_time }}</span>
+        </div>
+        {% if message.is_replied() %}
+        <div class="support-reply">
+            <strong>管理员回复</strong>
+            <p>{{ message.reply }}</p>
+            <span>回复时间：{{ message.replied_at|short_time }}</span>
+        </div>
+        {% else %}
+        <p class="muted">管理员尚未回复，请留意站内消息提醒。</p>
+        {% endif %}
+    </article>
+    {% else %}
+    <div class="empty-state">你还没有提交咨询留言。遇到认领争议、信息错误或加急申请问题时，可以通过右下角联系管理员提交咨询。</div>
+    {% endfor %}
+</section>
+{% endblock %}

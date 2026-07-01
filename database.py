@@ -109,6 +109,20 @@ class DatabaseManager:
                     FOREIGN KEY (user_id) REFERENCES users(id)
                 );
 
+                CREATE TABLE IF NOT EXISTS support_messages (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id INTEGER NOT NULL,
+                    username TEXT NOT NULL,
+                    content TEXT NOT NULL,
+                    reply TEXT,
+                    status TEXT NOT NULL DEFAULT '待回复',
+                    created_at TEXT NOT NULL,
+                    replied_at TEXT,
+                    admin_id INTEGER,
+                    FOREIGN KEY (user_id) REFERENCES users(id),
+                    FOREIGN KEY (admin_id) REFERENCES users(id)
+                );
+
                 CREATE TABLE IF NOT EXISTS operation_logs (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id INTEGER,

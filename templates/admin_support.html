@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}咨询留言管理 - 湖北汽车工业学院校园失物招领信息管理系统{% endblock %}
+{% block content %}
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <a href="{{ url_for('admin_dashboard') }}">统计看板</a>
+        <a href="{{ url_for('admin_items') }}">物品管理</a>
+        <a href="{{ url_for('admin_claims') }}">认领审核</a>
+        <a href="{{ url_for('admin_priority') }}">加急工单管理</a>
+        <a class="active" href="{{ url_for('admin_support') }}">咨询留言</a>
+        <a href="{{ url_for('admin_users') }}">用户管理</a>
+    </aside>
+    <section class="admin-main">
+        <div class="section-title">
+            <p class="eyebrow">Support Messages</p>
+            <h1>咨询留言管理</h1>
+            <p>站内咨询留言用于课程设计原型展示，不是实时人工客服。</p>
+        </div>
+        <div class="status-filter">
+            <a class="filter-chip {% if not current_status %}active{% endif %}" href="{{ url_for('admin_support') }}">全部</a>
+            {% for status in support_statuses %}
+            <a class="filter-chip {% if current_status == status %}active{% endif %}" href="{{ url_for('admin_support', status=status) }}">{{ status }}</a>
+            {% endfor %}
+        </div>
+        <div class="support-admin-list">
+            {% for message in messages %}
+            <article class="content-card support-message-card admin-support-card {% if message.is_replied() %}is-replied{% endif %}">
+                <div class="item-card-top">
+                    <div>
+                        <h2>{{ message.username }}</h2>
+                        <p class="muted">提交时间：{{ message.created_at|short_time }}</p>
+                    </div>
+                    <span class="status-badge {{ message.status|status_class }}">{{ message.status }}</span>
+                </div>
+                <div class="support-question">
+                    <strong>咨询内容</strong>
+                    <p>{{ message.content }}</p>
+                </div>
+                {% if message.is_replied() %}
+                <div class="support-reply">
+                    <strong>已回复</strong>
+                    <p>{{ message.reply }}</p>
+                    <span>回复时间：{{ message.replied_at|short_time }}</span>
+                </div>
+                {% else %}
+                <form class="support-reply-form" method="post" action="{{ url_for('admin_support_reply', message_id=message.id, status=current_status) }}">
+                    <label>回复内容
+                        <textarea name="reply" rows="4" placeholder="请填写给用户的回复内容"></textarea>
+                    </label>
+                    <button class="btn btn-primary btn-sm" type="submit">回复咨询</button>
+                </form>
+                {% endif %}
+            </article>
+            {% else %}
+            <div class="empty-state">当前没有符合条件的咨询留言。</div>
+            {% endfor %}
+        </div>
+    </section>
+</div>
+{% endblock %}

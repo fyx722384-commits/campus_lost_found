@@ -28,7 +28,7 @@
                 <td>{{ claim.reviewed_at|short_time if claim.reviewed_at else '待处理' }}</td>
             </tr>
             {% else %}
-            <tr><td colspan="6" class="empty-cell">暂无认领申请。</td></tr>
+            <tr><td colspan="6" class="empty-cell">你还没有提交认领申请。可以在物品详情页填写认领说明并提交申请。</td></tr>
             {% endfor %}
             </tbody>
         </table>

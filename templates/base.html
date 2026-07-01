@@ -21,6 +21,7 @@
         <a class="{% if request.endpoint == 'my_items' %}active{% endif %}" href="{{ url_for('my_items') }}">我的发布</a>
         <a class="{% if request.endpoint == 'my_claims' %}active{% endif %}" href="{{ url_for('my_claims') }}">我的申请</a>
         <a class="{% if request.endpoint == 'my_priority' %}active{% endif %}" href="{{ url_for('my_priority') }}">我的加急申请</a>
+        <a class="{% if request.endpoint == 'my_support' %}active{% endif %}" href="{{ url_for('my_support') }}">我的咨询</a>
         <a class="{% if request.endpoint == 'my_notifications' %}active{% endif %}" href="{{ url_for('my_notifications') }}">
             我的消息{% if unread_notification_count %}<span class="nav-count">{{ unread_notification_count }}</span>{% endif %}
         </a>
@@ -46,7 +47,34 @@
 </main>
 
 {% if current_user %}
-<footer class="site-footer">湖北汽车工业学院校园失物招领信息管理系统 · 课程设计原型</footer>
+<footer class="site-footer">湖北汽车工业学院校园失物招领信息管理系统 · 联系管理员：0719-0000000（课程设计演示）</footer>
+
+<div class="contact-float" data-contact-widget>
+    <button class="contact-float-button" type="button" aria-expanded="false" aria-controls="contact-float-panel" data-contact-toggle>
+        在线咨询
+    </button>
+    <section class="contact-float-panel" id="contact-float-panel" aria-hidden="true" data-contact-panel>
+        <div class="contact-panel-header">
+            <h2>在线咨询</h2>
+            <button type="button" aria-label="关闭联系管理员面板" data-contact-close>×</button>
+        </div>
+        <p>如遇到认领争议、信息错误、加急申请问题或重要物品核验问题，可联系校园失物招领管理员协助处理。</p>
+        <div class="contact-list compact">
+            <span>☎ 0719-0000000（课程设计演示）</span>
+            <span>⏰ 工作日 8:30 - 18:00</span>
+            <span>✉ campus-lostfound@example.com（课程设计演示）</span>
+        </div>
+        <form class="support-form" method="post" action="{{ url_for('support_send') }}" data-support-form>
+            <label>在线咨询留言
+                <textarea name="content" rows="4" maxlength="300" placeholder="请描述你遇到的问题，例如认领争议、信息错误、加急申请疑问等。"></textarea>
+            </label>
+            <button class="btn btn-primary btn-sm" type="submit">提交咨询</button>
+            <a class="support-link" href="{{ url_for('my_support') }}">查看我的咨询</a>
+        </form>
+        <p class="contact-demo-note">本功能为课程设计原型中的站内咨询留言功能，不是实时人工客服。管理员处理后，系统会通过站内消息提醒用户。</p>
+        <p class="contact-demo-note">以上联系方式仅用于课程设计原型展示，实际使用时应替换为学校正式公布的服务电话或管理渠道。</p>
+    </section>
+</div>
 {% endif %}
 
 <div id="toast-root" class="toast-root"></div>

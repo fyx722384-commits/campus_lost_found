@@ -25,7 +25,7 @@
                 <td>{{ request.expire_at|short_time if request.expire_at else '审核后生成' }}</td>
             </tr>
             {% else %}
-            <tr><td colspan="8" class="empty-cell">暂无加急申请。</td></tr>
+            <tr><td colspan="8" class="empty-cell">你还没有提交加急寻物申请。可以在自己发布的失物详情页申请加急。</td></tr>
             {% endfor %}
             </tbody>
         </table>

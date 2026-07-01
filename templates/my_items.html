@@ -31,7 +31,10 @@
         </div>
     </article>
     {% else %}
-    <div class="empty-state">你还没有发布任何失物或招领信息。</div>
+    <div class="empty-state">
+        <p>你还没有发布任何失物或招领信息。可以点击“发布信息”开始发布。</p>
+        <a class="btn btn-primary btn-sm" href="{{ url_for('publish') }}">发布信息</a>
+    </div>
     {% endfor %}
 </section>
 {% endblock %}

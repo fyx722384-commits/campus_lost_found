@@ -2,7 +2,7 @@ import re
 from datetime import datetime, timedelta
 
 from database import db
-from models import ClaimRequest, Item, Notification, PriorityRequest
+from models import ClaimRequest, Item, Notification, PriorityRequest, SupportMessage
 
 
 CATEGORIES = ["证件", "电子产品", "书籍", "生活用品", "钥匙", "校园卡", "其他"]
@@ -14,6 +14,7 @@ PRIORITY_LEVELS = {
     "公益加急": {"fee": 0, "hours": 24},
 }
 PRIORITY_STATUSES = ["待审核", "已通过", "已驳回", "已结束"]
+SUPPORT_STATUSES = ["待回复", "已回复"]
 PUBLIC_PRIORITY_CATEGORIES = ["校园卡", "证件", "钥匙"]
 
 
@@ -307,6 +308,87 @@ class NotificationService:
 
     def mark_all_as_read(self, user_id):
         db.execute("UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0", (user_id,))
+
+
+class SupportService:
+    def create_message(self, user_id, username, content):
+        content = (content or "").strip()
+        if not content:
+            raise ValueError("请输入咨询内容。")
+        if len(content) < 10:
+            raise ValueError("请补充更详细的问题描述。")
+        if len(content) > 300:
+            raise ValueError("咨询内容不能超过 300 字。")
+        message_id = db.insert(
+            """
+            INSERT INTO support_messages
+            (user_id, username, content, reply, status, created_at, replied_at, admin_id)
+            VALUES (?, ?, ?, '', '待回复', ?, NULL, NULL)
+            """,
+            (user_id, username, content, datetime.now().strftime("%Y-%m-%d %H:%M:%S")),
+        )
+        db.log(user_id, "提交咨询留言", "support_message", message_id)
+        return message_id
+
+    def get_user_messages(self, user_id):
+        rows = db.query(
+            """
+            SELECT *
+            FROM support_messages
+            WHERE user_id = ?
+            ORDER BY datetime(created_at) DESC, id DESC
+            """,
+            (user_id,),
+        )
+        return [SupportMessage.from_row(row) for row in rows]
+
+    def get_all_messages(self, status=None):
+        sql = "SELECT * FROM support_messages WHERE 1=1"
+        params = []
+        if status in SUPPORT_STATUSES:
+            sql += " AND status = ?"
+            params.append(status)
+        sql += """
+            ORDER BY
+                CASE status WHEN '待回复' THEN 1 ELSE 2 END,
+                datetime(created_at) DESC,
+                id DESC
+        """
+        return [SupportMessage.from_row(row) for row in db.query(sql, params)]
+
+    def reply_message(self, message_id, admin_id, reply):
+        reply = (reply or "").strip()
+        if not reply:
+            raise ValueError("请填写回复内容。")
+        message = self.get_message(message_id)
+        if not message:
+            raise ValueError("咨询留言不存在。")
+        replied_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        db.execute(
+            """
+            UPDATE support_messages
+            SET reply = ?, status = '已回复', replied_at = ?, admin_id = ?
+            WHERE id = ?
+            """,
+            (reply, replied_at, admin_id, message_id),
+        )
+        notification_service.create_notification(
+            message.user_id,
+            "管理员已回复你的咨询",
+            "你提交的咨询已收到管理员回复，请到“我的咨询”页面查看。",
+            "咨询回复",
+            "support",
+            message_id,
+        )
+        db.log(admin_id, "回复咨询留言", "support_message", message_id)
+
+    def get_message(self, message_id):
+        row = db.query_one("SELECT * FROM support_messages WHERE id = ?", (message_id,))
+        return SupportMessage.from_row(row)
+
+    def count_pending(self):
+        row = db.query_one("SELECT COUNT(*) AS count FROM support_messages WHERE status = '待回复'")
+        return row["count"] if row else 0
 
 
 class ClaimService:
@@ -616,6 +698,7 @@ class StatsService:
                 """
             ),
             "finished_priority": one("SELECT COUNT(*) FROM priority_requests WHERE status = '已结束'"),
+            "pending_support": one("SELECT COUNT(*) FROM support_messages WHERE status = '待回复'"),
         }
 
     def category_stats(self):
@@ -660,3 +743,4 @@ claim_service = ClaimService()
 stats_service = StatsService()
 priority_service = PriorityService()
 notification_service = NotificationService()
+support_service = SupportService()

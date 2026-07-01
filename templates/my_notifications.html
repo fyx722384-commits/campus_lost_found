@@ -11,6 +11,10 @@
             <button class="btn btn-primary" type="submit" {% if not unread_notification_count %}disabled{% endif %}>一键全部已读</button>
         </form>
     </div>
+    <div class="contact-hint notification-contact-hint">
+        <strong>审核咨询</strong>
+        <p>如对审核通知结果有疑问，可联系管理员咨询。如需查看管理员对咨询的具体回复，请进入“我的咨询”。</p>
+    </div>
 
     <div class="notification-list">
         {% for notification in notifications %}
@@ -37,7 +41,7 @@
             {% endif %}
         </article>
         {% else %}
-        <div class="empty-state">暂无站内消息。</div>
+        <div class="empty-state">暂无消息通知。管理员审核认领或加急申请后，系统会在这里提醒你。</div>
         {% endfor %}
     </div>
 </section>

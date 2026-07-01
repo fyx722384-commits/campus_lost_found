@@ -7,6 +7,7 @@
         <a href="{{ url_for('admin_items') }}">物品管理</a>
         <a class="active" href="{{ url_for('admin_claims') }}">认领审核</a>
         <a href="{{ url_for('admin_priority') }}">加急工单管理</a>
+        <a href="{{ url_for('admin_support') }}">咨询留言</a>
         <a href="{{ url_for('admin_users') }}">用户管理</a>
     </aside>
     <section class="admin-main">
@@ -36,7 +37,7 @@
                 </form>
             </article>
             {% else %}
-            <div class="empty-state">暂无认领申请。</div>
+            <div class="empty-state">当前没有待处理的认领申请。</div>
             {% endfor %}
         </div>
     </section>

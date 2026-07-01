@@ -15,12 +15,14 @@ from services import (
     ITEM_STATUSES,
     PRIORITY_LEVELS,
     PRIORITY_STATUSES,
+    SUPPORT_STATUSES,
     claim_service,
     item_service,
     match_service,
     notification_service,
     priority_service,
     stats_service,
+    support_service,
 )
 
 
@@ -93,6 +95,7 @@ def inject_globals():
         "claim_statuses": CLAIM_STATUSES,
         "priority_levels": PRIORITY_LEVELS,
         "priority_statuses": PRIORITY_STATUSES,
+        "support_statuses": SUPPORT_STATUSES,
         "unread_notification_count": notification_service.count_unread(user.id) if user else 0,
     }
 
@@ -112,6 +115,8 @@ def status_class(value):
         "已模拟支付": "status-green",
         "公益免支付": "status-green",
         "未支付": "status-yellow",
+        "待回复": "status-yellow",
+        "已回复": "status-green",
     }.get(value, "status-gray")
 
 
@@ -353,6 +358,26 @@ def my_notifications():
     )
 
 
+@app.route("/support/send", methods=["POST"])
+@login_required
+def support_send():
+    user = current_user()
+    content = request.form.get("content", "").strip()
+    try:
+        support_service.create_message(user.id, user.username, content)
+        flash("咨询已提交，管理员处理后会通过站内消息通知你。", "success")
+    except ValueError as exc:
+        flash(str(exc), "warning")
+    return redirect(request.referrer or url_for("index"))
+
+
+@app.route("/my-support")
+@login_required
+def my_support():
+    user = current_user()
+    return render_template("my_support.html", messages=support_service.get_user_messages(user.id))
+
+
 @app.route("/notification/read/<int:notification_id>", methods=["POST"])
 @login_required
 def mark_notification_read(notification_id):
@@ -386,6 +411,30 @@ def admin_dashboard():
         priority_requests=priority_service.get_admin_priority_requests("待审核"),
         admin_unread_notifications=notification_service.count_unread(user.id),
     )
+
+
+@app.route("/admin/support")
+@admin_required
+def admin_support():
+    status = request.args.get("status", "")
+    return render_template(
+        "admin_support.html",
+        messages=support_service.get_all_messages(status),
+        current_status=status,
+    )
+
+
+@app.route("/admin/support/<int:message_id>/reply", methods=["POST"])
+@admin_required
+def admin_support_reply(message_id):
+    user = current_user()
+    reply = request.form.get("reply", "").strip()
+    try:
+        support_service.reply_message(message_id, user.id, reply)
+        flash("咨询留言已回复，系统已通知用户。", "success")
+    except ValueError as exc:
+        flash(str(exc), "warning")
+    return redirect(url_for("admin_support", status=request.args.get("status", "")))
 
 
 @app.route("/admin/items", methods=["GET", "POST"])

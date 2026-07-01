@@ -31,6 +31,34 @@
     </div>
 </section>
 
+<section class="contact-card home-contact-card animate-in">
+    <div class="contact-card-main">
+        <p class="eyebrow">Service</p>
+        <h2>联系管理员</h2>
+        <p>如遇到认领争议、信息错误、加急申请问题或重要物品核验问题，可联系校园失物招领管理员协助处理。</p>
+        <p class="contact-demo-note">以上联系方式仅用于课程设计原型展示，实际使用时应替换为学校正式公布的服务电话或管理渠道。</p>
+    </div>
+    <div class="contact-list">
+        <span>☎ 联系电话：0719-0000000（课程设计演示）</span>
+        <span>⏰ 服务时间：工作日 8:30 - 18:00</span>
+        <span>✉ 联系邮箱：campus-lostfound@example.com（课程设计演示）</span>
+    </div>
+</section>
+
+<section class="helper-card usage-guide-card animate-in">
+    <div class="helper-card-heading">
+        <p class="eyebrow">Guide</p>
+        <h2>使用说明</h2>
+    </div>
+    <ol class="guide-list">
+        <li>丢失物品后，建议先使用关键词、分类和日期进行查找。</li>
+        <li>未找到对应信息时，可以发布失物信息。</li>
+        <li>拾到物品后，请及时发布招领信息。</li>
+        <li>认领重要物品时，需要填写物品特征证明。</li>
+        <li>管理员审核后，系统会通过站内消息通知处理结果。</li>
+    </ol>
+</section>
+
 <section class="stats-grid compact">
     <a class="stat-card stat-link {% if filters.get('stat') == 'all' or not active_filters %}active{% endif %}" href="{{ url_for('index', stat='all') }}">
         <span>总发布</span><strong>{{ stats.total_items }}</strong><small>查看全部</small>
@@ -76,6 +104,8 @@
     <button class="btn btn-primary" type="submit">搜索</button>
 </form>
 
+<p class="filter-tip">可以组合使用关键词、类型、分类、状态和日期范围进行查找。</p>
+
 <div class="filter-summary fade-list">
     {% if active_filters %}
     <span>当前筛选：{{ active_filters|join(' / ') }}</span>
@@ -111,7 +141,7 @@
         <a class="btn btn-ghost" href="{{ url_for('item_detail', item_id=item.id) }}">查看详情</a>
     </article>
     {% else %}
-    <div class="empty-state">暂时没有符合条件的信息，可以调整筛选条件或发布新信息。</div>
+    <div class="empty-state">暂无符合条件的信息。可以尝试更换关键词、扩大日期范围，或发布新的失物/招领信息。</div>
     {% endfor %}
 </section>
 {% endblock %}

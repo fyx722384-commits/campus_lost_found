@@ -62,6 +62,51 @@
 
     document.body.classList.add("page-ready");
 
+    document.querySelectorAll("[data-contact-widget]").forEach(function (widget) {
+        var toggle = widget.querySelector("[data-contact-toggle]");
+        var panel = widget.querySelector("[data-contact-panel]");
+        var close = widget.querySelector("[data-contact-close]");
+        if (!toggle || !panel) return;
+
+        function setOpen(open) {
+            widget.classList.toggle("is-open", open);
+            toggle.setAttribute("aria-expanded", open ? "true" : "false");
+            panel.setAttribute("aria-hidden", open ? "false" : "true");
+        }
+
+        toggle.addEventListener("click", function () {
+            setOpen(!widget.classList.contains("is-open"));
+        });
+        if (close) {
+            close.addEventListener("click", function () {
+                setOpen(false);
+            });
+        }
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+                setOpen(false);
+            }
+        });
+    });
+
+    document.querySelectorAll("[data-support-form]").forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+            var textarea = form.querySelector('textarea[name="content"]');
+            var value = textarea ? textarea.value.trim() : "";
+            if (!value) {
+                event.preventDefault();
+                showToast("请输入咨询内容", "warning");
+                if (textarea) textarea.focus();
+                return;
+            }
+            if (value.length < 10) {
+                event.preventDefault();
+                showToast("请补充更详细的问题描述", "warning");
+                if (textarea) textarea.focus();
+            }
+        });
+    });
+
     setStagger(".stat-card", 50, 8);
     setStagger(".admin-reminder-card", 60, 5);
     setStagger(".notice-card", 80, 4);
