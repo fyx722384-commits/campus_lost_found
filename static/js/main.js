@@ -1,4 +1,14 @@
 (function () {
+    var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function setStagger(selector, step, limit) {
+        if (reducedMotion) return;
+        document.querySelectorAll(selector).forEach(function (node, index) {
+            var capped = typeof limit === "number" ? Math.min(index, limit) : index;
+            node.style.animationDelay = (capped * step) + "ms";
+        });
+    }
+
     function showToast(message, category) {
         var root = document.getElementById("toast-root");
         if (!root) return;
@@ -50,8 +60,25 @@
         });
     });
 
-    document.querySelectorAll(".stat-card").forEach(function (card, index) {
-        card.style.animationDelay = (index * 45) + "ms";
+    document.body.classList.add("page-ready");
+
+    setStagger(".stat-card", 50, 8);
+    setStagger(".admin-reminder-card", 60, 5);
+    setStagger(".notice-card", 80, 4);
+    setStagger(".item-grid .item-card", 55, 12);
+    setStagger(".match-card", 70, 10);
+    setStagger(".notification-card", 55, 10);
+
+    document.querySelectorAll(".btn").forEach(function (button) {
+        button.addEventListener("click", function () {
+            if (button.disabled || reducedMotion) return;
+            button.classList.remove("is-pressed");
+            void button.offsetWidth;
+            button.classList.add("is-pressed");
+            setTimeout(function () {
+                button.classList.remove("is-pressed");
+            }, 220);
+        });
     });
 
     document.querySelectorAll(".progress span").forEach(function (bar) {
@@ -60,10 +87,6 @@
         bar.style.animation = "none";
         void bar.offsetWidth;
         bar.style.animation = "";
-    });
-
-    document.querySelectorAll(".match-card").forEach(function (card, index) {
-        card.style.animationDelay = (index * 70) + "ms";
     });
 
     document.querySelectorAll("[data-priority-level]").forEach(function (select) {
@@ -84,6 +107,7 @@
         form.addEventListener("submit", function () {
             var button = form.querySelector("button[type='submit']");
             if (!button) return;
+            button.classList.add("is-pressed");
             button.dataset.originalText = button.textContent;
             button.textContent = "处理中...";
             button.disabled = true;
